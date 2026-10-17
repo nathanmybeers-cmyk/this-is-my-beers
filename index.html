@@ -3683,21 +3683,21 @@ function refreshCandidates() {
        déco placée, et toute la vie autour (voitures, piétons, clients, équipe)
    ========================================================= */
 const CELL = 1.5;                        // une case de placement = 1,5 m
-const BAR_XL = -6;                       // le bâtiment s'agrandit vers la droite et vers l'arrière
-const SIZE_GEO = [                       // colonnes, rangées intérieures, rangées de terrasse
-  { C: 7,  R: 5, TR: 2 },
-  { C: 9,  R: 5, TR: 3 },
-  { C: 9,  R: 6, TR: 4 },
-  { C: 11, R: 7, TR: 4 },
-  { C: 13, R: 7, TR: 5 },
+const BAR_XL = -10;                      // le bâtiment s'agrandit vers la droite et vers l'arrière
+const SIZE_GEO = [                       // colonnes, rangées intérieures, rangées de terrasse, hauteur sous toit (m)
+  { C: 10, R: 7,  TR: 3, H: 4.6 },       // 15 × 10,5 m
+  { C: 12, R: 8,  TR: 4, H: 5.0 },       // 18 × 12 m
+  { C: 14, R: 9,  TR: 5, H: 5.6 },       // 21 × 13,5 m
+  { C: 17, R: 10, TR: 6, H: 6.4 },       // 25,5 × 15 m
+  { C: 20, R: 12, TR: 6, H: 7.2 },       // 30 × 18 m : aussi imposant que les commerces voisins
 ];
 /** Géométrie du bar et cases de placement (fonction pure, utilisée aussi sans 3D). */
 function computeGeo(size) {
   const g = SIZE_GEO[size - 1];
   const W = g.C * CELL, D = g.R * CELL, T = g.TR * CELL;
   const doorC = 1, doorX = BAR_XL + (doorC + 0.5) * CELL;
-  const cc0 = g.C - 4;                                     // le comptoir occupe les 4 colonnes de droite
-  const geo = { size, C: g.C, R: g.R, TR: g.TR, W, D, T, xL: BAR_XL, x1: BAR_XL + W, doorX, doorC,
+  const cc0 = g.C - (size >= 4 ? 5 : 4);                   // le comptoir occupe les 4 (puis 5) colonnes de droite
+  const geo = { size, C: g.C, R: g.R, TR: g.TR, H: g.H, W, D, T, xL: BAR_XL, x1: BAR_XL + W, doorX, doorC,
     counter: { x0: BAR_XL + cc0 * CELL, x1: BAR_XL + W, z: -D + 2.05 }, custZ: -D + 3.05, cells: new Map() };
   for (let r = 0; r < g.R; r++) for (let c = 0; c < g.C; c++) {
     let block = null;
@@ -3858,7 +3858,7 @@ const World = (() => {
     scene.add(new T.AmbientLight(0xffffff, 0.12));
     plane(400, 400, lam(0xffffff, { map: T_.grass() }), 0, 0, 0);
     // esplanade pavée devant le bar (place pour la grande terrasse)
-    plane(26, PLAZA_Z + 12, lam(0xffffff, { map: T_.paving() }), 3.5, 0.01, PLAZA_Z / 2 - 6);
+    plane(40, PLAZA_Z + 24, lam(0xffffff, { map: T_.paving() }), 6, 0.01, PLAZA_Z / 2 - 12);
     // parking
     plane(64, 15.5, lam(0xffffff, { map: T_.asphalt() }), 3, 0.015, (PLAZA_Z + 25.5) / 2);
     const lineM = basic({ color: 0xf2f2f2 });
@@ -3892,11 +3892,11 @@ const World = (() => {
     box(14.2, 0.4, 7.2, basic({ color: 0x1e7a3a }), 2, 5.2, 46);
     box(1, 1.6, 0.6, lam(0x1e7a3a), 0, 0, 46); box(1, 1.6, 0.6, lam(0x1e7a3a), 4, 0, 46);
     // arbres et lampadaires
-    for (const z of [-15, -18]) for (let x = -24; x <= 20; x += 6) tree(x + (z === -18 ? 3 : 0), z, 1.1);
+    for (const z of [-22, -25]) for (let x = -26; x <= 20; x += 6) tree(x + (z === -25 ? 3 : 0), z, 1.1);
     // lampadaires sur les bords du parking (jamais dans l'allée où roulent les voitures)
     for (const x of [-22, -9, 16, 24]) lampPost(x, PLAZA_Z - 0.4);
     for (const x of [-20, -6, 8, 20]) lampPost(x, 25.9);
-    for (const x of [-12, 16]) tree(x, 6, 0.9);
+    for (const x of [-13.5, 22.5]) tree(x, 6, 0.9);
   }
 
   /* ---------- le bâtiment ---------- */
@@ -4025,7 +4025,7 @@ const World = (() => {
     staff.splice(0, staff.length, ...staff.filter(s => !s.bld));
     cutParts = []; ghostParts = []; smokes.length = 0; blinkers.length = 0;
     const { xL, x1, W, D, doorX, counter, T: TT } = geo;
-    const H = 4.6, cx = xL + W / 2, up = sv.upgrades;
+    const H = geo.H, cx = xL + W / 2, up = sv.upgrades;
     const cut = o => { cutParts.push(o); return o; };
     const ghost = o => { ghostParts.push(o); return o; };
     plane(W, D, lam(0xffffff, { map: T_.parquet() }), cx, 0.03, -D / 2, bldG);
@@ -4042,7 +4042,7 @@ const World = (() => {
     cut(rbox(0.1, 2.65, 0.12, lam(0xd4a017), doorX - 0.8, 0, 0.24, bldG, 0.03)); cut(rbox(0.1, 2.65, 0.12, lam(0xd4a017), doorX + 0.8, 0, 0.24, bldG, 0.03));
     const rx0 = doorX + 0.9, rw = x1 - rx0;
     cut(box(rw + 0.3, 0.7, 0.3, ext, rx0 + rw / 2 + 0.15, 0, 0.15, bldG));
-    cut(box(rw + 0.3, 1.0, 0.3, ext, rx0 + rw / 2 + 0.15, H - 1.0, 0.15, bldG));
+    cut(box(rw + 0.3, H - 3.6, 0.3, ext, rx0 + rw / 2 + 0.15, 3.6, 0.15, bldG));
     for (let x = rx0 + 0.15; x < x1 - 0.5; x += 2.4) {
       const ww = Math.min(2.2, x1 - 0.1 - x);
       cut(box(ww, 2.9, 0.1, glass, x + ww / 2, 0.7, 0.18, bldG));
@@ -4055,7 +4055,7 @@ const World = (() => {
     cut(box(W + 0.5, 0.4, D + 0.6, lam(0x5d6166), cx, H, -D / 2 - 0.05, bldG));
     cut(rbox(W + 0.6, 0.55, 0.3, lam(0x2c2f33), cx, H + 0.3, 0.15, bldG, 0.08));
     // enseigne : caisson lumineux à cadre doré
-    const signW = Math.min(W - 1.2, 9.5), signY = H + 0.55;
+    const signW = Math.min(W - 1.2, 8 + sv.size * 1.6), signY = H + 0.55;
     cut(rbox(signW + 0.3, 2.0, 0.3, lam(0xd4a017, { emissive: 0x3a2800 }), cx, signY, 0.3, bldG, 0.12));
     cut(rbox(signW, 1.72, 0.34, lam(0x170d06), cx, signY + 0.14, 0.3, bldG, 0.08));
     cut(box(signW - 0.12, (signW - 0.12) * 300 / 1024, 0.02, basic({ map: signTex(sv.city), toneMapped: false }), cx, signY + 0.14 + (1.72 - (signW - 0.12) * 300 / 1024) / 2, 0.48, bldG));
@@ -4143,16 +4143,16 @@ const World = (() => {
       const pl = box(0.7, 1.0, 0.02, basic({ map: T_.poster(c) }), xL + 0.09, 1.61, -1.0 - i * 1.25, bldG); pl.rotation.y = Math.PI / 2; pl.castShadow = false;
     });
     for (let z = -0.6; z > -D + 0.6; z -= 2.2) { sphere(0.11, basic({ color: 0xffe2a8 }), xL + 0.12, 2.25, z, bldG, 14).castShadow = false; }
-    const warm = new T.PointLight(0xffb468, 0.8, 16); warm.position.set(cx, 3.4, -D / 2); bldG.add(warm);
+    const warm = new T.PointLight(0xffb468, 0.8, Math.max(16, W * 1.1)); warm.position.set(cx, 3.4, -D / 2); bldG.add(warm);
     const warm2 = new T.PointLight(0xffc27a, 0.55, 9); warm2.position.set(ccx, 2.8, cz + 0.6); bldG.add(warm2);
     // fantôme de l'agrandissement suivant
     if (sv.size < SIZES.length) {
       const ng = computeGeo(sv.size + 1);
       const gm = new T.MeshBasicMaterial({ color: 0xffd54a, transparent: true, opacity: 0.12, depthWrite: false });
-      const gb = new T.Mesh(new T.BoxGeometry(ng.W, H, ng.D), gm); gb.position.set(ng.xL + ng.W / 2, H / 2, -ng.D / 2); bldG.add(cut(gb));
+      const gb = new T.Mesh(new T.BoxGeometry(ng.W, ng.H, ng.D), gm); gb.position.set(ng.xL + ng.W / 2, ng.H / 2, -ng.D / 2); bldG.add(cut(gb));
       const ed = new T.LineSegments(new T.EdgesGeometry(gb.geometry), new T.LineBasicMaterial({ color: 0xffd54a })); ed.position.copy(gb.position); bldG.add(cut(ed));
       const tb = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(ng.W, 0.05, ng.T)), new T.LineBasicMaterial({ color: 0xffd54a })); tb.position.set(ng.xL + ng.W / 2, 0.05, ng.T / 2); bldG.add(tb);
-      const lb = label('＋ ' + SIZES[sv.size].name); lb.position.set(ng.xL + ng.W - 2, H + 2.6, -ng.D / 2); bldG.add(cut(lb));
+      const lb = label('＋ ' + SIZES[sv.size].name); lb.position.set(ng.xL + ng.W - 2, ng.H + 2.6, -ng.D / 2); bldG.add(cut(lb));
     }
     // terrasse
     const te = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(W, 0.04, TT)), new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 }));
@@ -4590,13 +4590,15 @@ const World = (() => {
   /* ---------- caméra & entrées ---------- */
   function setGoalsFor(v) {
     const V_ = VIEWS[v];
-    goal.az = V_.az; goal.pol = V_.pol; goal.dist = V_.dist;
+    goal.az = V_.az; goal.pol = V_.pol; goal.dist = V_.dist * zoomK();
     const tg = v === 'in' ? [geo.xL + geo.W / 2, 0.8, -geo.D / 2 + 0.5] : [geo.xL + geo.W / 2, 1.5, 4.5];
     targetGoal.set(...tg);
   }
+  /** Plus le bâtiment est grand, plus la caméra recule. */
+  const zoomK = () => geo ? clamp(Math.max(geo.W / 13, geo.D / 9), 1, 2.1) : 1;
   function clampGoal() {
-    const V_ = VIEWS[view];
-    goal.az = clamp(goal.az, V_.azR[0], V_.azR[1]); goal.pol = clamp(goal.pol, V_.polR[0], V_.polR[1]); goal.dist = clamp(goal.dist, V_.distR[0], V_.distR[1]);
+    const V_ = VIEWS[view], k = zoomK();
+    goal.az = clamp(goal.az, V_.azR[0], V_.azR[1]); goal.pol = clamp(goal.pol, V_.polR[0], V_.polR[1]); goal.dist = clamp(goal.dist, V_.distR[0] * k, V_.distR[1] * k);
   }
   function bindControls() {
     const el = renderer.domElement;
@@ -4807,6 +4809,7 @@ function confirmBox(title, text, yes, onYes) {
    21. LOBBY : travaux, déco, équipe, classement
    ========================================================= */
 function enterLobby() {
+  revalidateLayout();
   refreshCandidates();
   cancelEdit(true);
   showScreen('lobby');
