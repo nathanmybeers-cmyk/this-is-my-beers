@@ -1240,6 +1240,11 @@ b,strong{font-weight:700}
 .k-list{gap:8px}
 .cloud-off{padding:14px 16px}
 
+.login-box{display:flex;flex-direction:column;gap:10px;text-align:left;color:var(--ink);border:3px solid var(--tan);background:linear-gradient(180deg,#fff6e6,var(--paper));border-radius:20px;padding:16px 16px 10px;box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.login-box h3{margin:0;text-align:center;font-family:var(--font-display);letter-spacing:.03em}
+.login-box .lp-note{margin:0;text-align:center}
+.login-err{margin:0;min-height:1.2em;font-weight:700;font-size:.85rem;color:#c0392b;text-align:center}
+
 /* Préférence de réduction des animations */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
@@ -3493,7 +3498,7 @@ const MOODS = {
 const WHEEL = [1, -1, 1, -1, 1, -1];
 /** Les recrues possibles : l'équipe support My Beers (trombinoscope) + Benjamin et Thibaud.
     Mahfoud n'y figure pas : c'est l'animateur réseau du jeu. Les caractéristiques sont tirées au hasard à chaque partie. */
-const FIRST_NAMES = ['Agathe', 'Anthony', 'Armand', 'Aurélie', 'Clément', 'Emeline', 'Giovanni', 'Laurent', 'Laurent M.', 'Lola', 'Marvyn', 'Mathieu', 'Morgane', 'Nathan', 'Nicolas', 'Ophélie', 'Sonia', 'Thibault', 'Yannick', 'Clara', 'Benjamin', 'Thibaud'];
+const FIRST_NAMES = ['Agathe', 'Anthony', 'Armand', 'Aurélie', 'Clément', 'Emeline', 'Giovanni', 'Laurent', 'Laurent N.', 'Lola', 'Marvyn', 'Mathieu', 'Morgane', 'Nathan', 'Nicolas', 'Ophélie', 'Sonia', 'Thibault', 'Yannick', 'Clara', 'Benjamin', 'Thibaud'];
 const CITIES = ['Paris','Marseille','Lyon','Toulouse','Nice','Nantes','Montpellier','Strasbourg','Bordeaux','Lille','Rennes','Reims','Toulon','Saint-Étienne','Le Havre','Grenoble','Dijon','Angers','Nîmes','Villeurbanne','Clermont-Ferrand','Le Mans','Aix-en-Provence','Brest','Tours','Amiens','Limoges','Annecy','Perpignan','Metz','Besançon','Orléans','Rouen','Mulhouse','Caen','Nancy','Avignon','Poitiers','Pau','La Rochelle','Calais','Cannes','Antibes','Dunkerque','Bayonne','Biarritz','Ajaccio','Bastia','Colmar','Troyes','Chambéry','Valence','Lorient','Quimper','Vannes','Saint-Malo','Niort','Angoulême','Cholet','Laval','Chartres','Arras','Lens','Douai','Valenciennes','Saint-Nazaire','Béziers','Sète','Narbonne','Carcassonne','Albi','Montauban','Agen','Périgueux','Brive-la-Gaillarde','Vichy','Bourges','Blois','Auxerre','Mâcon','Thonon-les-Bains','Gap','Fréjus','Hyères','Arcachon','Mérignac','Versailles','Nanterre','Créteil','Saint-Denis','Vincennes','Roubaix','Tourcoing','Évreux','Cherbourg','Saint-Brieuc','Épinal','Belfort','Charleville-Mézières','Beauvais','Compiègne','Meaux','Évry','Cergy'];
 
 /** Modificateurs appliqués à la soirée selon tes travaux, ta déco et Mahfoud. */
@@ -3522,14 +3527,15 @@ function migrate(s) {
   return s.v === 2 ? s : null;
 }
 function loadSave() { try { return migrate(JSON.parse(localStorage.getItem(SAVE_KEY))); } catch { return null; } }
-function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(M.save)); } catch { /* stockage indisponible */ } }
+function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(M.save)); } catch { /* stockage indisponible */ } Account.touch(); }
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ } M.save = null; Account.touch(); }
 function newSave(pseudo, city) {
   return { v: 2, playerId: uid(), pseudo, city, day: 1, money: START_MONEY, totalCA: 0, bestNight: 0, nights: 0, lastCA: 0,
     size: 1, upgrades: { tireuses: 0, cuisine: 0, com: 0 }, staff: [], candidates: [], candDay: 0, history: [],
     layout: STARTER_LAYOUT(), inventory: {}, created: Date.now() };
 }
 const arcadeData = () => { try { return JSON.parse(localStorage.getItem(ARCADE_KEY)) || { id: uid(), name: '', scores: [] }; } catch { return { id: uid(), name: '', scores: [] }; } };
-const saveArcade = d => { try { localStorage.setItem(ARCADE_KEY, JSON.stringify(d)); } catch { /* ignore */ } };
+const saveArcade = d => { try { localStorage.setItem(ARCADE_KEY, JSON.stringify(d)); } catch { /* ignore */ } Account.touch(); };
 const barName = () => 'My Beers ' + M.save.city;
 const sizeDef = () => SIZES[M.save.size - 1];
 const staffMax = () => sizeDef().staff;
@@ -3567,6 +3573,81 @@ const Cloud = {
   pushArcade(player, name, score, ca) { this.post('arcade_scores', { player_id: player, pseudo: name, score: Math.round(score), ca: Math.round(ca) }); },
   top() { return this.get('bars?select=player_id,pseudo,city,total_ca,best_night,day&order=total_ca.desc&limit=50'); },
   topArcade() { return this.get('arcade_scores?select=player_id,pseudo,score,ca,created_at&order=score.desc&limit=20'); },
+};
+
+/** Compte « pseudo + mot de passe de partie » : la sauvegarde (bar + arcade) est copiée en ligne
+    et se recharge sur n'importe quel appareil. Sans Supabase (ou en partie de test), le jeu reste 100 % local. */
+const ACCOUNT_KEY = 'tmb.account.v1', SAVED_AT_KEY = 'tmb.savedAt.v1';
+const Account = {
+  offline: false,   // « jouer sans compte » pour cette session (réseau en panne)
+  timer: 0,
+  get session() { try { return JSON.parse(localStorage.getItem(ACCOUNT_KEY)); } catch { return null; } },
+  get needed() { return Cloud.on && !this.offline && !this.session; },
+  localAt() { try { return +localStorage.getItem(SAVED_AT_KEY) || (localStorage.getItem(SAVE_KEY) ? 1 : 0); } catch { return 0; } },
+  blob() { return { save: M.save, arcade: arcadeData(), savedAt: this.localAt() }; },
+  async rpc(fn, body, keepalive) {
+    const r = await fetch(`${CLOUD.url}/rest/v1/rpc/${fn}`, { method: 'POST', headers: Cloud.headers(), body: JSON.stringify(body), keepalive: !!keepalive });
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  },
+  /** Appelé à chaque sauvegarde locale : envoi groupé 1,5 s plus tard. */
+  touch() {
+    if (TEST_MONEY) return;
+    try { localStorage.setItem(SAVED_AT_KEY, String(Date.now())); } catch { /* ignore */ }
+    if (!Cloud.on || !this.session) return;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.push(), 1500);
+  },
+  async push(keepalive) {
+    const se = this.session;
+    if (!Cloud.on || !se) return true;
+    clearTimeout(this.timer);
+    try { return await this.rpc('account_save', { p_pseudo: se.pseudo, p_pass: se.pass, p_data: this.blob() }, keepalive) === true; } catch { return false; }
+  },
+  /** Charge les données du compte si elles sont plus récentes que celles de l'appareil. */
+  adopt(data) {
+    if (!data || !(data.savedAt > this.localAt())) return false;
+    try {
+      if (data.save) localStorage.setItem(SAVE_KEY, JSON.stringify(data.save)); else localStorage.removeItem(SAVE_KEY);
+      if (data.arcade) localStorage.setItem(ARCADE_KEY, JSON.stringify(data.arcade));
+      localStorage.setItem(SAVED_AT_KEY, String(data.savedAt));
+    } catch { /* ignore */ }
+    M.save = loadSave();
+    return true;
+  },
+  /** Connexion ou création : renvoie 'ok' | 'new' | 'bad' | 'locked' | 'taken' | 'invalid' | 'network'. */
+  async login(pseudo, pass, create) {
+    try {
+      if (create) {
+        const r = await this.rpc('account_create', { p_pseudo: pseudo, p_pass: pass, p_data: this.blob() });
+        if (r.status !== 'ok') return r.status;
+      } else {
+        const r = await this.rpc('account_login', { p_pseudo: pseudo, p_pass: pass });
+        if (r.status !== 'ok') return r.status;
+        pseudo = r.pseudo;
+        if (!this.adopt(r.data)) setTimeout(() => this.push(), 0);   // l'appareil a plus récent : on l'envoie
+      }
+    } catch { return 'network'; }
+    try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify({ pseudo, pass })); } catch { /* ignore */ }
+    const a = arcadeData();
+    if (!a.name) { a.name = pseudo; try { localStorage.setItem(ARCADE_KEY, JSON.stringify(a)); } catch { /* ignore */ } }
+    return 'ok';
+  },
+  /** Au démarrage : récupère la version en ligne si un autre appareil a joué entre-temps. */
+  async sync() {
+    const se = this.session;
+    if (!Cloud.on || !se) return false;
+    try {
+      const r = await this.rpc('account_login', { p_pseudo: se.pseudo, p_pass: se.pass });
+      if (r.status === 'ok') { if (this.adopt(r.data)) return true; this.push(); }
+      else if (r.status === 'new' || r.status === 'bad') { localStorage.removeItem(ACCOUNT_KEY); return true; }
+    } catch { /* hors ligne : on garde l'appareil */ }
+    return false;
+  },
+  logout() {
+    for (const k of [ACCOUNT_KEY, SAVED_AT_KEY, SAVE_KEY, ARCADE_KEY]) { try { localStorage.removeItem(k); } catch { /* ignore */ } }
+    M.save = null;
+  },
 };
 
 /* =========================================================
@@ -4639,18 +4720,48 @@ const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(
 const titleCase = s => s.trim().replace(/\s+/g, ' ').toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 let obCity = '';
 function renderTitle() {
-  const s = M.save, a = arcadeData();
+  if (Account.needed) {
+    $('#title-actions').innerHTML = `<div class="login-box">
+        <h3>👋 Qui est derrière le comptoir ?</h3>
+        <div class="field"><label for="lg-pseudo">Pseudo</label><input class="input" id="lg-pseudo" type="text" maxlength="16" autocomplete="username" spellcheck="false" placeholder="ex. Nathan"></div>
+        <div class="field"><label for="lg-pass">Mot de passe de partie</label><input class="input" id="lg-pass" type="password" maxlength="64" autocomplete="current-password" placeholder="4 caractères minimum"></div>
+        <p class="login-err" id="lg-err" aria-live="polite"></p>
+        <button class="btn-primary" data-act="login" type="button">▶ JOUER</button>
+        <p class="lp-note">Première fois ? Choisis un pseudo et un mot de passe : ils te permettront de retrouver ta partie sur n'importe quel appareil. N'utilise pas un vrai mot de passe.</p>
+        <button class="btn-link" data-act="offline" type="button">Jouer sans compte sur cet appareil</button>
+      </div>`;
+    return;
+  }
+  const s = M.save, a = arcadeData(), se = Cloud.on && Account.session;
   const best = a.scores[0];
   $('#title-actions').innerHTML = (s
     ? `<button class="btn-primary pulse" data-act="continue" type="button">▶ MON BAR</button>
        <div class="title-save">${escapeHTML(barName())} · jour ${s.day} · ${fmtEUR(s.money)} en caisse</div>`
     : `<button class="btn-primary pulse" data-act="new" type="button">${BEER} OUVRIR MON BAR</button>`)
     + `<button class="btn-secondary title-arcade" data-act="arcade" type="button">🕹️ MODE ARCADE<small>Le service pur, sans amélioration : qui est le meilleur ?${best ? ` · ton record : ${fmtNum(best.score)} pts` : ''}</small></button>`
-    + (s ? `<button class="btn-link" data-act="new" type="button">Nouvelle partie (efface ton bar)</button>` : '');
+    + (s ? `<button class="btn-link" data-act="new" type="button">Nouvelle partie (efface ton bar)</button>` : '')
+    + (se ? `<div class="title-save">Connecté : <b>${escapeHTML(se.pseudo)}</b> · partie sauvegardée en ligne</div><button class="btn-link" data-act="logout" type="button">Changer de joueur</button>` : '');
+}
+async function doLogin(create) {
+  const pseudo = $('#lg-pseudo').value.trim().slice(0, 16), pass = $('#lg-pass').value;
+  const err = t => { $('#lg-err').textContent = t; Sound.play('error'); };
+  if (!pseudo) { $('#lg-pseudo').focus(); return err('Choisis un pseudo.'); }
+  if (pass.length < 4) { $('#lg-pass').focus(); return err('Le mot de passe doit faire au moins 4 caractères.'); }
+  const btn = $('[data-act="login"]'); btn.disabled = true; $('#lg-err').textContent = 'Connexion…';
+  const r = await Account.login(pseudo, pass, create);
+  btn.disabled = false;
+  if (r === 'ok') { Sound.play('achieve'); renderTitle(); toast('🔑', create ? `Bienvenue ${pseudo} !` : `Content de te revoir, ${pseudo} !`, 'Ta partie est sauvegardée en ligne.', 'ok'); return; }
+  if (r === 'new') {
+    $('#lg-err').textContent = '';
+    confirmBox(`Créer le joueur « ${pseudo} » ?`, `Ce pseudo n'existe pas encore. Retiens bien ton mot de passe : sans lui, impossible de retrouver ta partie sur un autre appareil.${M.save ? ` Ton bar actuel (${barName()}) sera rattaché à ce compte.` : ''}`, 'Créer mon compte', () => doLogin(true));
+    return;
+  }
+  err({ bad: 'Mauvais mot de passe pour ce pseudo (ou pseudo déjà pris par quelqu\'un d\'autre).', taken: 'Ce pseudo vient d\'être pris, choisis-en un autre.',
+    locked: 'Trop d\'essais ratés : réessaie dans 2 minutes.', invalid: 'Pseudo ou mot de passe invalide.', network: 'Connexion impossible. Vérifie ton réseau, ou joue sans compte.' }[r] || 'Erreur inattendue.');
 }
 function openOnboard() {
   obCity = '';
-  $('#ob-name').value = arcadeData().name || '';
+  $('#ob-name').value = (Account.session && Account.session.pseudo) || arcadeData().name || '';
   $('#ob-city').value = '';
   renderCities(''); updateOnboard();
   showScreen('onboard');
@@ -4856,8 +4967,7 @@ function lobbyAction(act, id) {
   else if (act === 'title') { World.hide(); renderTitle(); showScreen('title'); return; }
   else if (act === 'reset') {
     confirmBox('Recommencer à zéro ?', `${barName()} sera fermé définitivement : argent, travaux, déco et équipe seront perdus.`, 'Tout effacer', () => {
-      try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ }
-      M.save = null; World.hide(); renderTitle(); showScreen('title');
+      clearSave(); World.hide(); renderTitle(); showScreen('title');
     });
     return;
   }
@@ -5434,13 +5544,25 @@ function bindMeta() {
     const b = e.target.closest('button');
     if (!b) return;
     Sound.init();
+    if (b.dataset.act === 'login') { doLogin(false); return; }
+    if (b.dataset.act === 'offline') { Account.offline = true; Sound.play('tick'); renderTitle(); return; }
+    if (b.dataset.act === 'logout') {
+      b.disabled = true;
+      Account.push().then(ok => {
+        const out = () => { Account.logout(); renderTitle(); };
+        if (ok) out();
+        else { b.disabled = false; confirmBox('Changer de joueur ?', 'Ta dernière progression n\'a pas pu être envoyée en ligne (réseau ?). Elle sera perdue sur cet appareil.', 'Changer quand même', out); }
+      });
+      return;
+    }
     if (b.dataset.act === 'continue') { Sound.play('tick'); enterLobby(); }
     else if (b.dataset.act === 'arcade') { Sound.play('tick'); openArcade(); }
     else if (b.dataset.act === 'new') {
-      if (M.save) confirmBox('Nouvelle partie ?', `${barName()} et toute ta progression seront effacés (tes scores arcade sont conservés).`, 'Oui, recommencer', () => { try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ } M.save = null; openOnboard(); });
+      if (M.save) confirmBox('Nouvelle partie ?', `${barName()} et toute ta progression seront effacés (tes scores arcade sont conservés).`, 'Oui, recommencer', () => { clearSave(); openOnboard(); });
       else openOnboard();
     }
   });
+  $('#title-actions').addEventListener('keydown', e => { if (e.key !== 'Enter') return; if (e.target.id === 'lg-pseudo') $('#lg-pass').focus(); else if (e.target.id === 'lg-pass') doLogin(false); });
   $('#ob-name').addEventListener('input', updateOnboard);
   $('#ob-city').addEventListener('input', e => { const q = e.target.value; obCity = CITIES.find(c => norm(c) === norm(q)) || ''; renderCities(q); updateOnboard(); });
   $('#ob-cities').addEventListener('click', e => { const b = e.target.closest('.city-btn'); if (!b) return; obCity = b.dataset.city; $('#ob-city').value = obCity; renderCities(obCity); updateOnboard(); Sound.play('tick'); });
@@ -5492,9 +5614,12 @@ function bootMeta() {
     toast('🧪', `Partie de test : ${fmtEUR(M.save.money)} en caisse`, 'Sauvegarde séparée : ton vrai bar n\'est pas touché.', 'info');
     return;
   }
-  if (M.save) persist();
   renderTitle();
   showScreen('title');
+  Account.sync().then(changed => { if (changed && $('#screen-title').classList.contains('active')) renderTitle(); });
+  const flush = () => { if (Account.timer) Account.push(true); };
+  addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 }
 
 /* ---------- Démarrage ---------- */
