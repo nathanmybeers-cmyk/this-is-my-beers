@@ -6,6 +6,14 @@
 <meta name="theme-color" content="#0b0906">
 <meta name="description" content="This is My Beers : ouvre ton bar dans ta ville, fais-le grandir, recrute ton équipe et enchaîne les soirées.">
 <title>This is My Beers</title>
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Beers">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* =========================================================
    MY BEERS — THE BAR CHALLENGE
@@ -1277,6 +1285,15 @@ b,strong{font-weight:700}
   .kpis{gap:6px}
 }
 
+/* Plein écran : icônes, et vue 3D du housing en grand */
+.ico-fs{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;display:block}
+.icon-btn.btn-fs{color:#fff}
+@media (pointer:coarse){.btn-fs{display:none !important}}
+.view-toggle .l3d-full{display:flex;align-items:center;gap:5px;padding:7px 9px}
+.view-toggle .l3d-full .ico-fs{width:18px;height:18px}
+#screen-lobby.full3d .lobby-3d{position:fixed;inset:0;z-index:40;border-radius:0;border:0;margin:0}
+#screen-lobby.full3d .l3d-hint{display:none}
+
 /* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
 .screen.scroll{overflow:hidden !important}
 .lp-body{overflow:hidden !important}
@@ -1292,6 +1309,93 @@ b,strong{font-weight:700}
 .modal-box .pager{margin-top:0}
 .login-mode .title-pitch,.login-mode .hero-pints{display:none}
 .login-mode .logo.big{font-size:clamp(2.6rem,11vw,5rem)}
+
+
+/* =========================================================
+   Téléphone à l'horizontale (paysage) : tout passe en deux colonnes
+   ========================================================= */
+@media (orientation:landscape) and (max-height:520px){
+  /* --- partie --- */
+  #screen-game{gap:5px;padding:calc(4px + var(--safe-t)) calc(8px + env(safe-area-inset-right,0px)) calc(4px + var(--safe-b)) calc(8px + env(safe-area-inset-left,0px))}
+  .hud{grid-template-columns:auto 1fr auto;grid-template-areas:"brand stats actions";gap:8px}
+  .hud-brand small{display:none}
+  .hud-brand .logo.sm{font-size:1rem}
+  .hud-stats{gap:5px}
+  .stat{padding:1px 8px;border-width:2px;box-shadow:0 2px 0 var(--brick-d);border-radius:10px;min-width:0;flex:0 1 92px}
+  .stat > span{font-size:.5rem}
+  .stat b{font-size:.92rem;line-height:1.15}
+  .icon-btn{width:34px;height:34px;font-size:1rem}
+  .status{flex-wrap:nowrap;gap:6px}
+  .tabs{flex:0 0 auto;padding:3px}
+  .tab{padding:4px 14px;font-size:.74rem}
+  .gauge{padding:2px 10px;border-width:2px}
+  .missions{gap:5px}
+  .mission{font-size:.62rem;padding:2px 9px;border-width:2px}
+  .view{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,46%);gap:8px}
+  .scene,.kscene{min-height:0 !important;height:auto !important;flex:none}
+  .bar-controls{height:100%;min-height:0;grid-template-columns:minmax(0,1fr) 104px;grid-template-areas:"order glass" "taps taps";grid-template-rows:minmax(0,1fr) minmax(0,1.2fr)}
+  .taps{min-height:0}
+  .tap{padding:8px 1px 3px}
+  .tap .tap-glass{width:28px;height:28px}
+  .k-panels{height:100%;min-height:0;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+  .toasts.in-game{left:auto;right:10px;width:min(320px,45vw)}
+
+  /* --- lobby : vue 3D à gauche, panneau à droite --- */
+  .lobby-main{grid-template-columns:minmax(0,1fr) minmax(300px,44%) !important;grid-template-rows:minmax(0,1fr) !important}
+  .lobby-top .chip{padding:3px 10px}
+  #screen-lobby{gap:6px;padding-top:calc(4px + var(--safe-t))}
+  .lobby-top .logo.sm{font-size:1rem}
+  .lobby-cta{flex-direction:row !important;align-items:center !important;padding:4px 0 calc(4px + var(--safe-b)) !important}
+  .lobby-cta .btn-primary{width:auto !important;padding:9px 22px;font-size:.95rem;flex:none}
+  .lobby-cta .anim-info{font-size:.72rem;justify-content:flex-start}
+  .lp-tabs{padding:4px 6px 2px}
+  .lp-tab{padding:6px 3px}
+  .lobby-panel{padding-top:14px}
+  .lobby-panel::before{height:14px}
+  .ucard{padding:6px 9px !important;gap:8px !important;border-width:2px}
+  .ucard .u-ico{width:32px;height:32px;font-size:1.25rem}
+  .ucard .u-txt b{font-size:.82rem}
+  .ucard .u-txt small{font-size:.68rem;margin-top:1px;line-height:1.25}
+  .buy{padding:6px 9px;min-width:70px;font-size:.7rem}
+  .lp-section{gap:5px}
+  .lp-body{padding:6px;gap:6px}
+  .lp-note{font-size:.68rem;margin-top:2px;line-height:1.3}
+  #lp-body[data-tab="works"] .u-txt small:not(.u-effect),#lp-body[data-tab="works"] > .lp-note,#lp-body[data-tab="decor"] > .lp-note{display:none}
+  .dtile{padding:5px 4px;border-width:2px}
+  .dtile .d-ico{font-size:1.2rem}
+  .dtile b{font-size:.68rem}
+  .dtile small{display:none}
+  .kpis{gap:5px}
+  .view-toggle{top:auto;bottom:8px;right:8px}
+
+  /* --- accueil : logo à gauche, actions à droite --- */
+  .title-wrap{flex-direction:row;flex-wrap:wrap;max-width:none;justify-content:center;align-items:center;gap:8px 28px;padding-top:calc(8px + var(--safe-t));padding-bottom:calc(8px + var(--safe-b))}
+  .title-wrap > .top-actions{position:absolute;top:8px;right:12px}
+  .title-pitch,.title-wrap .foot{display:none}
+  .hero-pints{transform:scale(.8);margin:-14px 0 -20px}
+  .title-actions{flex:0 1 360px;margin-top:0}
+
+  /* --- ouverture du bar : deux colonnes --- */
+  .onboard{max-width:820px;display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;align-items:start}
+  .onboard > div:first-child{grid-column:1 / -1}
+  .onboard > div:nth-of-type(3){grid-column:2;grid-row:2 / span 3}
+  .onboard > .sign-preview{padding:10px}
+
+  /* --- récap et résultats arcade : chiffres à gauche, détail à droite --- */
+  #screen-recap .recap,#screen-arcade .recap{max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;align-items:start;justify-items:center}
+  #screen-recap .recap > *,#screen-arcade .recap > *{grid-column:1}
+  #screen-recap .recap > .rc-lines{grid-column:2;grid-row:1 / span 6}
+  #screen-recap .recap > .rc-net{grid-column:2;grid-row:7}
+  #screen-recap .recap > .rc-news{grid-column:2;grid-row:8 / span 3}
+  #screen-arcade .recap > .ar-boards{grid-column:2;grid-row:1 / span 9;width:100%}
+
+  /* --- fenêtres --- */
+  .modal-box{width:min(620px,100%);padding:12px 18px !important;gap:8px}
+  .modal-box h2{font-size:1.2rem;display:block;width:fit-content;max-width:100%;white-space:nowrap;margin-bottom:4px}
+  .modal-box .pause-tip{font-size:.78rem;line-height:1.35;margin:0}
+  .overlay.modal{padding-top:6px;padding-bottom:6px}
+  #arc-board{display:none}
+}
 
 /* Préférence de réduction des animations */
 @media (prefers-reduced-motion:reduce){
@@ -1310,7 +1414,7 @@ b,strong{font-weight:700}
   <div class="title-wrap">
     <div class="top-actions" style="align-self:flex-end">
       <button class="icon-btn btn-sound" type="button" aria-label="Couper le son" title="Son (M)">🔊</button>
-      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran">⛶</button>
+      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran"></button>
     </div>
     <div class="hero">
       <div class="hero-pints" aria-hidden="true">
@@ -1372,14 +1476,14 @@ b,strong{font-weight:700}
     </div>
     <div class="lt-actions">
       <button class="icon-btn btn-sound" type="button" aria-label="Couper le son" title="Son (M)">🔊</button>
-      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran">⛶</button>
+      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran"></button>
     </div>
   </header>
   <div class="lobby-main">
     <div class="lobby-3d" id="lobby-3d">
       <div class="l3d-badge" id="l3d-badge"></div>
       <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · pince pour zoomer</div>
-      <div class="view-toggle" id="view-toggle"><button data-view="out" class="on" type="button">🏞️ Extérieur</button><button data-view="in" type="button">🛋️ Intérieur</button></div>
+      <div class="view-toggle" id="view-toggle"><button data-view="out" class="on" type="button">🏞️ Extérieur</button><button data-view="in" type="button">🛋️ Intérieur</button><button class="l3d-full" id="l3d-full" type="button" aria-label="Agrandir la vue" title="Agrandir la vue"></button></div>
       <div class="edit-bar" id="edit-bar" hidden></div>
       <div class="item-pop" id="item-pop" hidden></div>
     </div>
@@ -1460,7 +1564,7 @@ b,strong{font-weight:700}
     </div>
     <div class="hud-actions">
       <button class="icon-btn btn-sound" type="button" aria-label="Couper le son" title="Son (M)">🔊</button>
-      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran">⛶</button>
+      <button class="icon-btn btn-fs" type="button" aria-label="Plein écran" title="Plein écran"></button>
       <button class="icon-btn" id="btn-pause" type="button" aria-label="Pause" title="Pause (P / Échap)">⏸</button>
     </div>
   </header>
@@ -3476,8 +3580,11 @@ function fitScreens() {
     }
   }
   for (const box of $$(".overlay.show .modal-box:not(#ov-ach .modal-box)")) {
-    box.style.zoom = ''; box.style.maxHeight = '';
-    if (box.scrollHeight > box.clientHeight + 1) { box.style.zoom = Math.max(0.5, box.clientHeight / box.scrollHeight).toFixed(3); box.style.maxHeight = 'none'; }
+    // hauteur naturelle de la fenêtre comparée à la place dans l'écran
+    box.style.zoom = ''; box.style.maxHeight = 'none';
+    const ov = box.closest('.overlay'), cs = getComputedStyle(ov);
+    const avail = ov.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 8, need = box.offsetHeight;
+    if (need > avail) box.style.zoom = Math.max(0.45, avail / need).toFixed(3);
   }
 }
 let fitRaf = 0;
@@ -3580,9 +3687,11 @@ function toggleFullscreen() {
     else { const p = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (p && p.catch) p.catch(() => {}); }
   } catch { /* refusé */ }
 }
+const ICO_EXPAND = '<svg class="ico-fs" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const ICO_SHRINK = '<svg class="ico-fs" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
 function updateFsButtons() {
   const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  $$('.btn-fs').forEach(b => { b.hidden = !fsSupported; b.textContent = isFs ? '🗗' : '⛶'; b.setAttribute('aria-label', isFs ? 'Quitter le plein écran' : 'Plein écran'); });
+  $$('.btn-fs').forEach(b => { b.hidden = !fsSupported; b.innerHTML = isFs ? ICO_SHRINK : ICO_EXPAND; b.setAttribute('aria-label', isFs ? 'Quitter le plein écran' : 'Plein écran'); });
 }
 
 function bindUI() {
@@ -3593,6 +3702,7 @@ function bindUI() {
   document.addEventListener('pointerdown', () => { if (!Sound.muted) Sound.init(); }, { once: true, capture: true });
   new MutationObserver(muts => { if (muts.some(m => !m.target.closest || !m.target.closest('#screen-game, #lp-body, .lobby-3d'))) scheduleFit(); })
     .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  if (window.ResizeObserver) { let lpH = 0; new ResizeObserver(() => { const h = $('#lp-body').clientHeight; if (h && h !== lpH && currentScreen === 'lobby' && M.save) { lpH = h; paginateLobby(); } }).observe($('#lp-body')); }
   let rsT = 0;
   window.addEventListener('resize', () => { scheduleFit(); clearTimeout(rsT); rsT = setTimeout(() => { if (currentScreen === 'lobby' && M.save) renderPanel(); if ($('#ov-ach.show')) renderAchievements(); }, 150); });
   for (const k of ['master', 'music', 'sfx']) {
@@ -3773,7 +3883,7 @@ const POUR_BASE = { perfect: POUR.perfect, ok: POUR.ok };
    ========================================================= */
 /** Partie de test : ouvrir index.html?argent=100000 (sauvegarde séparée, ton vrai bar n'est pas touché, rien n'est envoyé en ligne). */
 const TEST_MONEY = (() => { try { const v = new URLSearchParams(location.search).get('argent'); return v ? clamp(parseInt(v, 10) || 0, 0, 10000000) : 0; } catch { return 0; } })();
-const SAVE_KEY = TEST_MONEY ? 'tmb.save.test' : 'tmb.save.v1', ARCADE_KEY = TEST_MONEY ? 'tmb.arcade.test' : 'tmb.arcade.v1';
+const SAVE_KEY = TEST_MONEY ? 'tmb.save.test3' : 'tmb.save.v3', ARCADE_KEY = TEST_MONEY ? 'tmb.arcade.test3' : 'tmb.arcade.v3';   // v3 : remise à zéro des parties (nouveau plan du bâtiment)
 const M = { save: null, night: { mood: null }, tab: 'works', wheel: null, edit: null, decorZone: 'in' };
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'p-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
 const STARTER_LAYOUT = () => [{ id: 'table2', key: 'in:0:3', rot: 0 }, { id: 'table2', key: 'in:0:5', rot: 0 }, { id: 'plant', key: 'in:1:0', rot: 0 }, { id: 'parasol', key: 'out:0:3', rot: 0 }, { id: 'parasol', key: 'out:0:5', rot: 0 }];
@@ -3839,7 +3949,7 @@ const Cloud = {
 
 /** Compte « pseudo + mot de passe de partie » : la sauvegarde (bar + arcade) est copiée en ligne
     et se recharge sur n'importe quel appareil. Sans Supabase (ou en partie de test), le jeu reste 100 % local. */
-const ACCOUNT_KEY = 'tmb.account.v1', SAVED_AT_KEY = 'tmb.savedAt.v1';
+const ACCOUNT_KEY = 'tmb.account.v3', SAVED_AT_KEY = 'tmb.savedAt.v3';
 const Account = {
   offline: false,   // « jouer sans compte » pour cette session (réseau en panne)
   timer: 0,
@@ -3948,26 +4058,30 @@ function refreshCandidates() {
 const CELL = 1.5;                        // une case de placement = 1,5 m
 const BAR_XL = -10;                      // le bâtiment s'agrandit vers la droite et vers l'arrière
 const SIZE_GEO = [                       // colonnes, rangées intérieures, rangées de terrasse, hauteur sous toit (m)
-  { C: 10, R: 7,  TR: 3, H: 4.6 },       // 15 × 10,5 m
-  { C: 12, R: 8,  TR: 4, H: 5.0 },       // 18 × 12 m
-  { C: 14, R: 9,  TR: 5, H: 5.6 },       // 21 × 13,5 m
-  { C: 17, R: 10, TR: 6, H: 6.4 },       // 25,5 × 15 m
-  { C: 20, R: 12, TR: 6, H: 7.2 },       // 30 × 18 m : aussi imposant que les commerces voisins
+  { C: 10, R: 7,  TR: 3, H: 4.6, BAR: 4 },   // 15 × 10,5 m      (BAR : colonnes occupées par le comptoir)
+  { C: 12, R: 8,  TR: 4, H: 5.0, BAR: 4 },   // 18 × 12 m
+  { C: 14, R: 9,  TR: 5, H: 5.6, BAR: 5 },   // 21 × 13,5 m
+  { C: 17, R: 10, TR: 5, H: 6.4, BAR: 6 },   // 25,5 × 15 m
+  { C: 20, R: 13, TR: 5, H: 7.2, BAR: 7 },   // 30 × 19,5 m : un peu plus profond pour l'escalier du rooftop
 ];
+const KITCHEN = { w: 4.4, d: 3.6, h: 3.3 };   // extension cuisine à l'arrière, derrière le passe-plat
 /** Géométrie du bar et cases de placement (fonction pure, utilisée aussi sans 3D). */
 function computeGeo(size) {
   const g = SIZE_GEO[size - 1];
   const W = g.C * CELL, D = g.R * CELL, T = g.TR * CELL;
   const doorC = 1, doorX = BAR_XL + (doorC + 0.5) * CELL;
-  const cc0 = g.C - (size >= 4 ? 5 : 4);                   // le comptoir occupe les 4 (puis 5) colonnes de droite
+  const cc0 = g.C - g.BAR;                                  // le comptoir grandit avec le bâtiment
   const geo = { size, C: g.C, R: g.R, TR: g.TR, H: g.H, W, D, T, xL: BAR_XL, x1: BAR_XL + W, doorX, doorC,
-    counter: { x0: BAR_XL + cc0 * CELL, x1: BAR_XL + W, z: -D + 2.05 }, custZ: -D + 3.05, cells: new Map() };
+    counter: { x0: BAR_XL + cc0 * CELL, x1: BAR_XL + W, z: -D + 2.05 }, custZ: -D + 3.05, cells: new Map(),
+    kitchenX: BAR_XL + (cc0 - 1) * CELL,                     // passe-plat juste à gauche du comptoir
+    stair: size >= 5 ? { x: BAR_XL + 0.75, zB: -D + 6, zT: -D + 0.35, h: g.H, approach: `in:${g.R - 5}:0` } : null };
   for (let r = 0; r < g.R; r++) for (let c = 0; c < g.C; c++) {
     let block = null;
     if (c === doorC) block = 'passage';
     if (r === g.R - 3 && c >= doorC) block = 'passage';
     if (r >= g.R - 2 && c >= cc0) block = 'comptoir';
-    if (r === g.R - 1 && c <= 1) block = 'cuisine';
+    if (r === g.R - 1 && (c === cc0 - 2 || c === cc0 - 1)) block = 'cuisine';   // devant le passe-plat
+    if (size >= 5 && c === 0 && r >= g.R - 4) block = 'escalier';
     geo.cells.set(`in:${r}:${c}`, { key: `in:${r}:${c}`, zone: 'in', r, c, x: BAR_XL + (c + 0.5) * CELL, z: -(r + 0.5) * CELL, block });
   }
   for (let r = 0; r < g.TR; r++) for (let c = 0; c < g.C; c++) {
@@ -4155,7 +4269,7 @@ const World = (() => {
     box(14.2, 0.4, 7.2, basic({ color: 0x1e7a3a }), 2, 5.2, 46);
     box(1, 1.6, 0.6, lam(0x1e7a3a), 0, 0, 46); box(1, 1.6, 0.6, lam(0x1e7a3a), 4, 0, 46);
     // arbres et lampadaires
-    for (const z of [-22, -25]) for (let x = -26; x <= 20; x += 6) tree(x + (z === -25 ? 3 : 0), z, 1.1);
+    for (const z of [-27, -30]) for (let x = -26; x <= 20; x += 6) tree(x + (z === -30 ? 3 : 0), z, 1.1);
     // lampadaires sur les bords du parking (jamais dans l'allée où roulent les voitures)
     for (const x of [-22, -9, 16, 24]) lampPost(x, PLAZA_Z - 0.4);
     for (const x of [-20, -6, 8, 20]) lampPost(x, 25.9);
@@ -4266,14 +4380,9 @@ const World = (() => {
         c.fillStyle = '#9a4a2c'; c.fillRect(bx0, y(3.9), bx1 - bx0, 3.9 * m);
         c.fillStyle = '#c9b49c';
         for (let r = 0, yy = y(3.9); yy < H; yy += 0.2 * m, r++) { c.fillRect(bx0, yy, bx1 - bx0, 3); for (let xx = bx0 + (r % 2 ? 0.2 * m : 0); xx < bx1; xx += 0.4 * m) c.fillRect(xx, yy, 3, 0.2 * m); }
-        // carrelage blanc de la cuisine
-        c.fillStyle = '#f4f6f7'; c.fillRect(0, y(2.6), 3.2 * m, 2.6 * m);
-        c.strokeStyle = '#cfd6dc'; c.lineWidth = 2;
-        for (let xx = 0; xx < 3.2 * m; xx += 0.2 * m) { c.beginPath(); c.moveTo(xx, y(2.6)); c.lineTo(xx, H); c.stroke(); }
-        for (let yy = y(2.6); yy < H; yy += 0.2 * m) { c.beginPath(); c.moveTo(0, yy); c.lineTo(3.2 * m, yy); c.stroke(); }
       }
       // soubassement en bois peint
-      const wx0 = kind === 'back' ? 3.2 * m : 0, wx1 = kind === 'back' ? (geo.counter.x0 - geo.xL - 0.1) * m : W;
+      const wx0 = 0, wx1 = kind === 'back' ? (geo.counter.x0 - geo.xL - 0.1) * m : W;
       if (wx1 > wx0) {
         c.fillStyle = '#2f5a4a'; c.fillRect(wx0, y(1.15), wx1 - wx0, 1.15 * m);
         c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 3;
@@ -4294,7 +4403,14 @@ const World = (() => {
     plane(W, D, lam(0xffffff, { map: T_.parquet() }), cx, 0.05, -D / 2, bldG);
     const ext = lam(0xffffff, { map: T_.cladding() });
     // murs (arrière et gauche restent visibles en vue intérieure)
-    const back = solid(new T.Mesh(new T.BoxGeometry(W + 0.3, H, 0.3), [ext, ext, ext, ext, lam(0xffffff, { map: wallTex(W + 0.3, H, 'back') }), ext])); back.position.set(cx - 0.15, H / 2, -D - 0.15); bldG.add(back);
+    const backTex = wallTex(W + 0.3, H, 'back'), bw0 = xL - 0.3, bwW = W + 0.3, kx = geo.kitchenX;
+    const backSeg = (x0, x1, y0, y1) => {
+      const tx = backTex.clone(); tx.needsUpdate = true;
+      tx.repeat.set((x1 - x0) / bwW, (y1 - y0) / H); tx.offset.set((x0 - bw0) / bwW, y0 / H);
+      const m = solid(new T.Mesh(new T.BoxGeometry(x1 - x0, y1 - y0, 0.3), [ext, ext, ext, ext, lam(0xffffff, { map: tx }), ext]));
+      m.position.set((x0 + x1) / 2, (y0 + y1) / 2, -D - 0.15); bldG.add(m);
+    };
+    backSeg(bw0, kx - 1.2, 0, H); backSeg(kx + 1.2, x1, 0, H); backSeg(kx - 1.2, kx + 1.2, 0, 1.0); backSeg(kx - 1.2, kx + 1.2, 2.0, H);
     const left = solid(new T.Mesh(new T.BoxGeometry(0.3, H, D), [lam(0xffffff, { map: wallTex(D, H, 'left') }), ext, ext, ext, ext, ext])); left.position.set(xL - 0.15, H / 2, -D / 2); bldG.add(left);
     cut(box(0.3, H, D + 0.3, ext, x1 + 0.15, 0, -D / 2 - 0.15, bldG));
     // façade : bardage bois, grandes baies, porte vitrée
@@ -4334,10 +4450,11 @@ const World = (() => {
       for (const sz of [1, -1]) { const f = box(1.36, 3.2, 0.02, basic({ map: totemTex(sv.city), toneMapped: false }), tx, 1.7, tz + sz * 0.36, bldG); if (sz < 0) f.rotation.y = Math.PI; } }
     if (up.com >= 2) { const neon = basic({ color: 0xffc63a, toneMapped: false }); cut(rbox(W + 0.4, 0.09, 0.09, neon, cx, H + 0.9, 0.35, bldG, 0.04)); cut(cyl(0.05, 0.05, H, neon, xL - 0.25, 0, 0.35, bldG)); cut(cyl(0.05, 0.05, H, neon, x1 + 0.25, 0, 0.35, bldG)); }
     if (up.com >= 3) for (const bx of [xL + 0.6, x1 - 0.6]) { const b = new T.Mesh(new T.ConeGeometry(1.4, 16, 24, 1, true), new T.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0.12, depthWrite: false, side: T.DoubleSide })); b.position.set(bx, H + 8.5, -1); b.rotation.z = bx < cx ? 0.25 : -0.25; bldG.add(cut(b)); }
-    if (up.cuisine >= 1) {
-      cut(rbox(1, 1 + up.cuisine * 0.3, 1, lam(0x9aa3ab), xL + 1.2, H + 0.4, -D + 1, bldG, 0.1));
-      cut(cyl(0.25, 0.25, 1.4, lam(0x7e878e), xL + 1.2, H + 1.4 + up.cuisine * 0.3, -D + 1, bldG));
-      for (let i = 0; i < 3; i++) { const sp = new T.Sprite(new T.SpriteMaterial({ color: 0xeeeeee, transparent: true, opacity: 0.4, depthWrite: false })); sp.position.set(xL + 1.2, H + 3, -D + 1); sp.userData = { y0: H + 3, t: i }; bldG.add(cut(sp)); smokes.push(sp); }
+    if (up.cuisine >= 1) {   // extracteur sur le toit de l'extension cuisine
+      const chx = geo.kitchenX + 1.2, chz = -D - 0.3 - KITCHEN.d / 2, ch = KITCHEN.h + 0.3;
+      cut(rbox(1, 0.6 + up.cuisine * 0.3, 1, lam(0x9aa3ab), chx, ch, chz, bldG, 0.1));
+      cut(cyl(0.25, 0.25, 1.4, lam(0x7e878e), chx, ch + 0.6 + up.cuisine * 0.3, chz, bldG));
+      for (let i = 0; i < 3; i++) { const sp = new T.Sprite(new T.SpriteMaterial({ color: 0xeeeeee, transparent: true, opacity: 0.4, depthWrite: false })); sp.position.set(chx, ch + 2.6, chz); sp.userData = { y0: ch + 2.6, t: i }; bldG.add(cut(sp)); smokes.push(sp); }
     }
     if (sv.size >= 5) {
       for (let i = 0; i < 3; i++) { const px = xL + 2 + i * (W - 4) / 2; cut(cyl(0.04, 0.04, 2.2, lam(0x333333), px, H + 0.4, -D / 2, bldG)); const c = solid(new T.Mesh(new T.ConeGeometry(1.2, 0.5, 24), lam(i % 2 ? 0x141414 : 0xd4a017))); c.position.set(px, H + 2.7, -D / 2); bldG.add(cut(c)); }
@@ -4347,9 +4464,10 @@ const World = (() => {
     // pergola au-dessus de la grande terrasse
     if (TT >= 4.5) {
       const wood = lam(0x9a6a3a);
-      for (let x = xL; x <= x1 + 0.01; x += W / Math.max(2, Math.round(W / 4))) ghost(cyl(0.09, 0.09, 3.2, wood, x, 0, TT - 0.2, bldG));
-      for (let z = 0.6; z < TT; z += 0.8) ghost(rbox(W, 0.1, 0.12, wood, cx, 3.2, z, bldG, 0.03));
-      for (let i = 0; i <= 18; i++) { const k = i / 18; const b = sphere(0.07, basic({ color: i % 3 ? 0xffe08a : 0xffb04a }), lerp(xL, x1, k), 3.05 - Math.sin(k * Math.PI) * 0.3, TT * 0.5, bldG, 10); b.castShadow = false; blinkers.push(ghost(b)); }
+      const pz = TT + CELL;   // les poteaux sont une case devant la terrasse : rien ne peut les traverser
+      for (let x = xL; x <= x1 + 0.01; x += W / Math.max(2, Math.round(W / 4))) ghost(cyl(0.09, 0.09, 3.2, wood, x, 0, pz, bldG));
+      for (let z = 0.6; z < pz; z += 0.8) ghost(rbox(W, 0.1, 0.12, wood, cx, 3.2, z, bldG, 0.03));
+      for (let i = 0; i <= 18; i++) { const k = i / 18; const b = sphere(0.07, basic({ color: i % 3 ? 0xffe08a : 0xffb04a }), lerp(xL, x1, k), 3.05 - Math.sin(k * Math.PI) * 0.3, pz * 0.5, bldG, 10); b.castShadow = false; blinkers.push(ghost(b)); }
     }
     // ---- intérieur ----
     // poutres + suspensions
@@ -4387,17 +4505,8 @@ const World = (() => {
       }
     }
     for (let i = 0; i < up.tireuses + 1; i++) { cyl(0.3, 0.3, 0.7, lam(i % 2 ? 0xb0b8bf : 0x8a5426), counter.x1 - 0.5 - i * 0.7, 0, -D + 0.85, bldG); cyl(0.31, 0.31, 0.05, lam(0x555555), counter.x1 - 0.5 - i * 0.7, 0.55, -D + 0.85, bldG); }
-    // passe de la cuisine en inox
-    const steel = lam(0xc7ced4), steelD = lam(0x8d969c);
-    rbox(2.9, 1.05, 0.56, steel, xL + 1.55, 0, -D + 1.3, bldG, 0.04);
-    rbox(3.0, 0.07, 0.68, lam(0xe6ebee), xL + 1.55, 1.05, -D + 1.3, bldG, 0.025);
-    rbox(2.8, 0.14, 0.24, steelD, xL + 1.55, 2.25, -D + 1.3, bldG, 0.04);
-    box(2.6, 0.03, 0.12, basic({ color: 0xff8a3a }), xL + 1.55, 2.23, -D + 1.3, bldG);
-    for (const x of [xL + 0.4, xL + 2.7]) cyl(0.025, 0.025, 1.1, steelD, x, 1.12, -D + 1.3, bldG);
-    for (let i = 0; i < 3; i++) cyl(0.17, 0.12, 0.03, lam(0xffffff), xL + 0.75 + i * 0.75, 1.13, -D + 1.3, bldG, 20);
-    const marco = person({ shirt: 0xeef1f3, chef: true, pants: 0x2d3436, skin: 0xe2a878, apron: 0xffffff });
-    marco.position.set(xL + 1.3, 0, -D + 0.6); marco.userData.work = true; bldG.add(marco);
-    staff.push({ obj: marco, fixed: true, bld: true });
+    buildKitchen(ext);
+    if (geo.stair) buildStairs();
     // néon, cadres, appliques
     const neon = box(3.2, 0.9, 0.04, basic({ map: textTex('MY BEERS', { bg: '#00000000', border: null, font: FONT_T }), transparent: true, toneMapped: false }), xL + 0.03, 2.75, -D / 2 - 0.4, bldG);
     neon.rotation.y = Math.PI / 2; neon.castShadow = false;
@@ -4405,7 +4514,7 @@ const World = (() => {
       const fr = rbox(0.06, 1.12, 0.82, lam(0xd4a017), xL + 0.04, 1.55, -1.0 - i * 1.25, bldG, 0.02);
       const pl = box(0.7, 1.0, 0.02, basic({ map: T_.poster(c) }), xL + 0.09, 1.61, -1.0 - i * 1.25, bldG); pl.rotation.y = Math.PI / 2; pl.castShadow = false;
     });
-    for (let z = -0.6; z > -D + 0.6; z -= 2.2) { sphere(0.11, basic({ color: 0xffe2a8 }), xL + 0.12, 2.25, z, bldG, 14).castShadow = false; }
+    for (let z = -0.6; z > -D + (geo.stair ? 6.6 : 0.6); z -= 2.2) { sphere(0.11, basic({ color: 0xffe2a8 }), xL + 0.12, 2.25, z, bldG, 14).castShadow = false; }
     const warm = new T.PointLight(0xffb468, 0.8, Math.max(16, W * 1.1)); warm.position.set(cx, 3.4, -D / 2); bldG.add(warm);
     const warm2 = new T.PointLight(0xffc27a, 0.55, 9); warm2.position.set(ccx, 2.8, cz + 0.6); bldG.add(warm2);
     // fantôme de l'agrandissement suivant
@@ -4425,6 +4534,57 @@ const World = (() => {
     te.position.set(cx, 0.07, TT / 2); bldG.add(te);
     plane(W, TT, lam(0xffffff, { map: T_.planks() }), cx, 0.05, TT / 2, bldG);
     applyCut();
+  }
+  /** Cuisine en extension à l'arrière : Marco est visible à travers le passe-plat percé dans le mur du fond. */
+  function buildKitchen(ext) {
+    const { D } = geo, kx = geo.kitchenX, { w: KW, d: KD, h: KH } = KITCHEN, z0 = -D - 0.3, zc = z0 - KD / 2;
+    const steel = lam(0xc7ced4), steelD = lam(0x8d969c);
+    plane(KW, KD, lam(0xffffff, { map: T_.kitchenTiles ? T_.kitchenTiles() : null, color: 0xdfe4e8 }), kx, 0.05, zc, bldG);
+    box(KW + 0.5, KH, 0.25, ext, kx, 0, z0 - KD - 0.125, bldG);
+    for (const sx of [-1, 1]) box(0.25, KH, KD, ext, kx + sx * (KW / 2 + 0.125), 0, zc, bldG);
+    cutParts.push(box(KW + 0.8, 0.3, KD + 0.5, lam(0x5d6166), kx, KH, zc - 0.1, bldG));
+    // intérieur blanc carrelé
+    const tile = lam(0xf4f6f7);
+    box(KW, KH - 0.1, 0.02, tile, kx, 0, z0 - KD + 0.02, bldG);
+    // piano de cuisson, hotte, friteuse
+    rbox(2.6, 0.9, 0.7, steel, kx - 0.2, 0, z0 - KD + 0.45, bldG, 0.04);
+    rbox(2.6, 0.05, 0.7, lam(0x2b2b2b), kx - 0.2, 0.9, z0 - KD + 0.45, bldG, 0.02);
+    rbox(2.9, 0.5, 0.95, steelD, kx - 0.2, 2.25, z0 - KD + 0.5, bldG, 0.06);
+    box(2.6, 0.03, 0.1, basic({ color: 0xff8a3a }), kx - 0.2, 2.24, z0 - KD + 0.9, bldG);
+    for (let i = 0; i < 2; i++) { cyl(0.2, 0.17, 0.06, lam(0x222222), kx - 0.9 + i * 0.8, 0.95, z0 - KD + 0.45, bldG, 20); }
+    rbox(0.8, 1.0, 0.7, steel, kx + 1.55, 0, z0 - KD + 0.45, bldG, 0.04);
+    box(0.6, 0.04, 0.5, basic({ color: 0xe0a030 }), kx + 1.55, 1.0, z0 - KD + 0.45, bldG);
+    const kl = new T.PointLight(0xfff2d6, 0.7, 7); kl.position.set(kx, KH - 0.4, zc); bldG.add(kl);
+    // passe-plat : tablette inox traversante, lampe chauffante, assiettes
+    rbox(2.5, 0.08, 0.95, lam(0xe6ebee), kx, 1.0, -D - 0.15, bldG, 0.03);
+    rbox(2.4, 0.12, 0.24, steelD, kx, 1.82, -D + 0.1, bldG, 0.04);
+    box(2.2, 0.03, 0.1, basic({ color: 0xff8a3a }), kx, 1.8, -D + 0.1, bldG);
+    for (let i = 0; i < 3; i++) cyl(0.17, 0.12, 0.03, lam(0xffffff), kx - 0.75 + i * 0.75, 1.08, -D + 0.05, bldG, 20);
+    const frame = lam(0x2c2f33);
+    for (const sx of [-1, 1]) rbox(0.08, 1.0, 0.34, frame, kx + sx * 1.2, 1.0, -D - 0.15, bldG, 0.02);
+    rbox(2.48, 0.08, 0.34, frame, kx, 1.96, -D - 0.15, bldG, 0.02);
+    // Marco, le cuisinier, face au passe
+    const marco = person({ shirt: 0xeef1f3, chef: true, pants: 0x2d3436, skin: 0xe2a878, apron: 0xffffff });
+    marco.position.set(kx - 0.3, 0, z0 - 1.0); marco.userData.work = true; bldG.add(marco);
+    staff.push({ obj: marco, fixed: true, bld: true });
+  }
+  /** Rooftop : escalier le long du mur gauche, au fond de la salle. */
+  function buildStairs() {
+    const st = geo.stair, n = Math.ceil(st.h / 0.24), rise = st.h / n, run = (st.zB - st.zT) / n;
+    const wood = lam(0x8a5a36), dark = lam(0x5a3418);
+    for (let i = 0; i < n; i++) {
+      const z = st.zB - (i + 0.5) * run;
+      rbox(1.3, rise * (i + 1), run + 0.01, i % 2 ? wood : lam(0x93633c), st.x, 0, z, bldG, 0.015);
+      box(1.32, 0.04, run + 0.02, dark, st.x, rise * (i + 1), z, bldG);
+    }
+    // garde-corps côté salle
+    const rx = st.x + 0.68, len = Math.hypot(st.zB - st.zT, st.h);
+    for (let i = 0; i <= 6; i++) { const k = i / 6; cyl(0.025, 0.025, 0.95, lam(0x2c2f33), rx, k * st.h, st.zB - k * (st.zB - st.zT), bldG, 10); }
+    const rail = cyl(0.04, 0.04, len, lam(0xd4a017), rx, 0, 0, bldG, 12);
+    rail.position.set(rx, st.h / 2 + 0.95, (st.zB + st.zT) / 2); rail.rotation.x = -Math.atan2(st.zB - st.zT, st.h);
+    // panneau « ROOFTOP » au pied de l'escalier
+    const sign = box(1.4, 0.45, 0.03, basic({ map: textTex('ROOFTOP ↑', { bg: '#141414', fg: '#ffd54a', border: '#ffd54a' }), toneMapped: false }), geo.xL + 0.03, 2.2, st.zB + 0.9, bldG);
+    sign.rotation.y = Math.PI / 2; sign.castShadow = false;
   }
   /** Abords du bâtiment : local poubelles, armoire électrique, parterres de fleurs (suivent la taille du bar). */
   function flowerBed(x, z, w, d) {
@@ -4447,7 +4607,7 @@ const World = (() => {
   function buildOutdoorProps() {
     const { xL, x1, D, T: TT } = geo;
     // local poubelles derrière le bâtiment, à côté de la cuisine : muret en bois + 3 conteneurs (ordures, tri, verre)
-    const bx = xL + 1.6, bz = -D - 1.4;
+    const bx = Math.max(xL + 1.8, geo.kitchenX - KITCHEN.w / 2 - 2.4), bz = -D - 1.4;
     rbox(3.6, 1.25, 0.12, lam(0x8a5a36), bx, 0, bz - 0.62, bldG, 0.03);
     for (const sx of [-1, 1]) rbox(0.12, 1.25, 1.3, lam(0x8a5a36), bx + sx * 1.8, 0, bz, bldG, 0.03);
     wheelieBin(bx - 1.1, bz, 0x3a3f44); wheelieBin(bx, bz, 0xf2c200); wheelieBin(bx + 1.1, bz, 0x2e7d32);
@@ -4672,7 +4832,7 @@ const World = (() => {
     const c = clamp(Math.floor((x - geo.xL) / CELL), 0, geo.C - 1);
     return z < 0 ? `in:${clamp(Math.floor(-z / CELL), 0, geo.R - 1)}:${c}` : `out:${clamp(Math.floor(z / CELL), 0, geo.TR - 1)}:${c}`;
   }
-  function walkable(key) { const c = geo.cells.get(key); return !!c && c.block !== 'comptoir' && c.block !== 'cuisine' && !occupied.has(key); }
+  function walkable(key) { const c = geo.cells.get(key); return !!c && c.block !== 'comptoir' && c.block !== 'cuisine' && c.block !== 'escalier' && !occupied.has(key); }
   function cellNeighbors(key) {
     const c = geo.cells.get(key), out = [];
     for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = `${c.zone}:${c.r + dr}:${c.c + dc}`; if (geo.cells.has(k)) out.push(k); }
@@ -4810,7 +4970,7 @@ const World = (() => {
     });
     roles.filter(r => r === 'commis').slice(0, 2).forEach((r, i) => {
       const o = person({ shirt: 0xeef1f3, chef: true, skin: pick(SKINS3) });
-      o.position.set(geo.xL + 2.3 + i * 0.6, 0, -D + 0.6); o.userData.work = true;
+      o.position.set(geo.kitchenX + 0.9 + i * 0.7, 0, -D - 0.3 - 1.6); o.userData.work = true;
       npcG.add(o);
       staff.push({ obj: o, fixed: true });
     });
@@ -4849,8 +5009,28 @@ const World = (() => {
     else { p.x += dx / d * step; p.z += dz / d * step; }
     return true;
   }
+  let stairT = 3;
+  function spawnClimber(up) {
+    const st = geo.stair; if (!st) return;
+    const w = walker(randPerson(), [], rand(1.1, 1.4), null), dX = geo.doorX;
+    const exit = [[dX, -0.7], [dX, 0.9], [dX, PLAZA_Z], [dX, STRIP_Z + 0.5], [pick([-70, 70]), STRIP_Z + 0.5]];
+    if (up) {
+      w.obj.position.set(dX, 0, PLAZA_Z);
+      const r = route(`in:0:${geo.doorC}`, st.approach);
+      if (!r) { removeWalker(w); return; }
+      go(w, [[dX, 0.9], ...r, [st.x, st.zB]], () => { w.stair = true; go(w, [[st.x, st.zT]], () => removeWalker(w)); });
+    } else {
+      w.stair = true; w.obj.position.set(st.x, st.h, st.zT);
+      go(w, [[st.x, st.zB]], () => {
+        w.stair = false; w.obj.position.y = 0;
+        const r = route(st.approach, `in:0:${geo.doorC}`);
+        go(w, [...(r || []), ...exit], () => removeWalker(w));
+      });
+    }
+  }
   function updateLife(dt) {
     pedT -= dt; carT -= dt;
+    if (geo.stair && (stairT -= dt) <= 0) { stairT = rand(4, 9); if (people.length < 26) spawnClimber(Math.random() < 0.5); }
     if (pedT <= 0) { pedT = rand(2.5, 5); if (people.length < 22) spawnPedestrian(); }
     if (carT <= 0) { carT = rand(2.5, 5.5); if (cars.length < 16) spawnCar(); }
     for (const w of [...people]) {
@@ -4864,6 +5044,7 @@ const World = (() => {
       }
       const moving = moveAlong(w, dt);
       animPerson(w.obj, moving, dt);
+      if (w.stair && geo.stair) { const st = geo.stair; w.obj.position.y = st.h * clamp((st.zB - w.obj.position.z) / (st.zB - st.zT), 0, 1); }
       if (!moving && w.done) { const f = w.done; w.done = null; f(w); }
     }
     for (const c of [...cars]) {
@@ -5304,6 +5485,14 @@ function setLobbyView(v) {
   if (M.edit && M.edit.mode === 'place') { const z = DECOR_BY[M.edit.item].zone; if (z !== 'both' && z !== v) { abortPlace(); enterDecorMode(); } else { const c = [...computeGeo(M.save.size).cells.values()].find(c => c.zone === v && !placeCheck(c.key, M.edit.item)); if (c) { M.edit.key = c.key; refreshPlace(); } } }
   if (M.tab === 'decor') renderPanel();
 }
+/** Vue 3D du bar en plein écran (housing) : un bouton pour entrer, le même (ou Échap) pour sortir. */
+function toggleFull3D(on = !$('#screen-lobby').classList.contains('full3d')) {
+  $('#screen-lobby').classList.toggle('full3d', on);
+  const b = $('#l3d-full');
+  b.innerHTML = on ? ICO_SHRINK + '<span>Quitter</span>' : ICO_EXPAND;
+  b.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Agrandir la vue');
+  b.title = b.getAttribute('aria-label');
+}
 function syncViewButtons() { $$('#view-toggle button').forEach(b => b.classList.toggle('on', b.dataset.view === World.view)); }
 /** Validité d'une case pour un objet (zone, passages, case libre). */
 function placeCheck(key, id) {
@@ -5312,7 +5501,8 @@ function placeCheck(key, id) {
   if (d.zone !== 'both' && d.zone !== cell.zone) return d.zone === 'in' ? 'Cet objet va à l\'intérieur' : 'Cet objet va sur la terrasse';
   if (cell.block === 'passage') return 'Passage clients : garde-le libre';
   if (cell.block === 'comptoir') return 'Zone du comptoir réservée à l\'équipe';
-  if (cell.block) return 'Zone de la cuisine';
+  if (cell.block === 'escalier') return 'Escalier du rooftop';
+  if (cell.block) return 'Devant le passe-plat de la cuisine';
   if (M.save.layout.some(e => e.key === key)) return 'Case déjà occupée';
   return '';
 }
@@ -5893,7 +6083,12 @@ function bindMeta() {
   $('#ob-back').addEventListener('click', () => { renderTitle(); showScreen('title'); });
   $$('.lp-tab').forEach(t => t.addEventListener('click', () => { cancelEdit(true); if (M.tab !== t.dataset.tab) PAGES['lobby-' + t.dataset.tab] = 0; M.tab = t.dataset.tab; Sound.play('tick'); renderLobby(); if (M.tab === 'decor') { setLobbyView(World.view); enterDecorMode(); } }));
   $('#lp-body').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) lobbyAction(b.dataset.act, b.dataset.id); });
-  $('#view-toggle').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { setLobbyView(b.dataset.view); Sound.play('tick'); } });
+  $('#view-toggle').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'l3d-full') toggleFull3D(); else setLobbyView(b.dataset.view);
+    Sound.play('tick');
+  });
+  toggleFull3D(false);
   $('#edit-bar').addEventListener('click', e => {
     const b = e.target.closest('[data-act]');
     if (!b || b.disabled) return;
@@ -5903,6 +6098,7 @@ function bindMeta() {
   });
   // Clavier dans le lobby : R tourner, Entrée valider, Échap annuler
   document.addEventListener('keydown', e => {
+    if (currentScreen === 'lobby' && e.key === 'Escape' && !(M.edit && M.edit.mode === 'place') && $('#screen-lobby').classList.contains('full3d')) { toggleFull3D(false); return; }
     if (currentScreen !== 'lobby' || !M.edit || M.edit.mode !== 'place' || (e.target.matches && e.target.matches('input'))) return;
     const k = e.key.toLowerCase();
     if (k === 'r') rotatePlace();
@@ -5969,7 +6165,7 @@ window.MyBeers = {
   view: setView, unlockFood() { if (!S.foodUnlocked) unlockFood(); },
   transmitAll, take(i = 0) { takeTray(K.trays[i]); }, deliver(c) { return deliverTray(c); },
   get meta() { return M; }, endNight(reason = 'closing') { endGame(reason); }, calm: calmAnimator,
-  place(id, key) { startPlace(id); onCellTap(key); }, geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v),
+  place(id, key) { startPlace(id); onCellTap(key); }, geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v), fit: () => fitScreens(),
 };
 })();
 </script>

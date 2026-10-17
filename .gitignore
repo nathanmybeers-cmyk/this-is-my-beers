@@ -4,3 +4,4 @@
 *.png
 # Système
 .DS_Store
+!icons/*.png
