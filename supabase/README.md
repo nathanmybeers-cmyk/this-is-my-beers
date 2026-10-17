@@ -35,8 +35,7 @@ Il suffit de publier ces fichiers tels quels :
 
 ```
 index.html
-vendor/three.min.js
-vendor/three-LICENSE.txt
+vendor/   (Three.js et les polices)
 ```
 
 N'importe quel hébergement statique convient, par exemple Netlify (glisser-déposer le dossier), Vercel ou GitHub Pages. Partage ensuite le lien à tes collègues : ça marche directement sur téléphone.
