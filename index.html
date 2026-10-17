@@ -1245,6 +1245,54 @@ b,strong{font-weight:700}
 .login-box .lp-note{margin:0;text-align:center}
 .login-err{margin:0;min-height:1.2em;font-weight:700;font-size:.85rem;color:#c0392b;text-align:center}
 
+.vol-row{display:flex;flex-direction:column;gap:6px;text-align:left}
+.vol-row label{font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.vol-row label svg{width:18px;height:18px}
+.vol-row input{-webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:99px;background:linear-gradient(90deg,var(--c-teal,#3cc8bd) var(--p,50%),rgba(0,0,0,.15) var(--p,50%));border:2px solid rgba(0,0,0,.18);cursor:pointer}
+.vol-row input:disabled{opacity:.45;cursor:not-allowed}
+.vol-row input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--c-teal-d,#1d8f87);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.vol-row input::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--c-teal-d,#1d8f87);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+
+/* Catalogue de déco en tuiles */
+.dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dtile{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px 7px;border-radius:14px;background:var(--paper);border:3px solid var(--tan);box-shadow:0 3px 0 var(--paper-3);color:var(--ink);font:inherit;cursor:pointer;text-align:center;min-width:0}
+.dtile:not(:disabled):hover{border-color:var(--c-green-d,#4a8a1c);transform:translateY(-1px)}
+.dtile:disabled{opacity:.5;cursor:default}
+.dtile .d-ico{font-size:1.55rem;line-height:1.1}
+.dtile b{font-size:.78rem;line-height:1.15;font-weight:700}
+.dtile small{font-size:.66rem;color:#3f8a17;font-weight:700;line-height:1.2}
+.dtile .d-price{margin-top:3px;font-family:var(--font-display);font-size:.78rem;background:var(--c-green,#7cc242);color:#fff;border-radius:99px;padding:2px 9px;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.dtile .d-own{position:absolute;top:4px;right:5px;font-size:.66rem;font-weight:800;color:var(--ink-2)}
+@media (max-width:600px){
+  .ucard{padding:8px 10px !important;gap:9px !important}
+  .ucard .u-ico{width:36px;height:36px;font-size:1.4rem}
+  .ucard .u-txt b{font-size:.86rem}
+  .ucard .u-txt small{font-size:.72rem;margin-top:1px}
+  .lp-section{gap:6px}
+  .lp-body{padding:8px;gap:8px}
+  .lp-note{margin-top:4px;line-height:1.35}
+  .lobby-main{grid-template-rows:minmax(170px,36%) minmax(0,1fr) !important}
+  #lp-body[data-tab="works"] .u-txt small:not(.u-effect),#lp-body[data-tab="works"] > .lp-note{display:none}
+  #lp-body[data-tab="team"] > .lp-note{font-size:.7rem}
+  .kpis{gap:6px}
+}
+
+/* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
+.screen.scroll{overflow:hidden !important}
+.lp-body{overflow:hidden !important}
+.city-list{max-height:none !important;overflow:hidden !important}
+.pg-off,.pg-empty{display:none !important}
+.k-list{overflow:hidden !important;display:flex !important;flex-direction:column}
+.k-list > .k-card{flex:0 1 auto;min-height:30px;overflow:hidden}
+.k-panels{overflow:hidden !important}
+.pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:auto;padding-top:4px;flex:none}
+.pager span{font-family:var(--font-display);color:var(--ink);min-width:54px;text-align:center}
+.pager button{width:44px;height:38px;border-radius:12px;border:3px solid var(--tan);background:var(--paper);color:var(--ink);font-size:1rem;box-shadow:0 3px 0 var(--paper-3);cursor:pointer}
+.pager button:disabled{opacity:.35;cursor:default}
+.modal-box .pager{margin-top:0}
+.login-mode .title-pitch,.login-mode .hero-pints{display:none}
+.login-mode .logo.big{font-size:clamp(2.6rem,11vw,5rem)}
+
 /* Préférence de réduction des animations */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
@@ -1520,7 +1568,7 @@ b,strong{font-weight:700}
     <h2 id="pause-title">⏸ PAUSE</h2>
     <p class="pause-tip">Les clients patientent sagement… pour l'instant.</p>
     <button class="btn-primary" id="btn-resume" type="button">▶ REPRENDRE</button>
-    <button class="btn-secondary btn-sound" type="button" aria-label="Couper le son">🔊 Son</button>
+    <button class="btn-secondary btn-sound" type="button" aria-label="Réglages du son">🔊 Son</button>
     <button class="btn-secondary" id="btn-close-night" type="button">🚪 Fermer le bar plus tôt</button>
     <p class="pause-tip"><b>Bar</b> : 1-4 maintenir pour tirer · 5 cocktail · A/Z taille du verre · ←/→ client · E bonus<br><b>Cuisine</b> : Entrée transmettre les bons · 1-3 prendre un plateau<br>Espace bar ⇄ cuisine · P pause · M son</p>
   </div>
@@ -1565,6 +1613,17 @@ b,strong{font-weight:700}
     <p class="pause-tip" id="confirm-text"></p>
     <button class="btn-primary" id="confirm-yes" type="button">Oui</button>
     <button class="btn-secondary" id="confirm-no" type="button">Annuler</button>
+  </div>
+</div>
+
+<div class="overlay modal" id="ov-audio" role="dialog" aria-modal="true" aria-labelledby="audio-title">
+  <div class="modal-box">
+    <h2 id="audio-title">🎵 SON</h2>
+    <div class="vol-row"><label for="vol-master">🔊 Volume général</label><input type="range" id="vol-master" min="0" max="100" step="1"></div>
+    <div class="vol-row"><label for="vol-music">🎵 Musique</label><input type="range" id="vol-music" min="0" max="100" step="1"></div>
+    <div class="vol-row"><label for="vol-sfx"><span data-beer></span> Ambiance &amp; effets</label><input type="range" id="vol-sfx" min="0" max="100" step="1"></div>
+    <button class="btn-secondary" id="vol-mute" type="button">🔇 Couper tout le son</button>
+    <button class="btn-primary" id="vol-close" type="button">OK</button>
   </div>
 </div>
 
@@ -1854,21 +1913,36 @@ function tapDecoSVG() {
    3. AUDIO — sons synthétisés, aucun fichier externe
    --------------------------------------------------------- */
 const Sound = (() => {
-  let ctx = null, master = null, noiseBuf = null;
+  let ctx = null, master = null, sfx = null, musicBus = null, noiseBuf = null, crackleBuf = null;
   let muted = Store.get('muted', false);
+  const vol = Object.assign({ master: 0.8, music: 0.55, sfx: 0.9 }, Store.get('vol', {}));
+  function applyVol() {
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    master.gain.setTargetAtTime(muted ? 0 : 0.6 * vol.master, now, 0.05);
+    musicBus.gain.setTargetAtTime(0.5 * vol.music * vol.music, now, 0.05);   // courbe douce : le curseur répond mieux en bas
+    sfx.gain.setTargetAtTime(vol.sfx, now, 0.05);
+  }
   function init() {
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       ctx = new AC();
-      master = ctx.createGain(); master.gain.value = 0.5;
+      master = ctx.createGain(); sfx = ctx.createGain(); musicBus = ctx.createGain();
       const comp = ctx.createDynamicsCompressor();
+      sfx.connect(master); musicBus.connect(master);
       master.connect(comp); comp.connect(ctx.destination);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      // craquements de vinyle : quelques clics épars sur un souffle très léger
+      crackleBuf = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+      const c = crackleBuf.getChannelData(0);
+      for (let i = 0; i < c.length; i++) c[i] = (Math.random() * 2 - 1) * 0.012 + (Math.random() < 0.0004 ? (Math.random() * 2 - 1) * 0.6 : 0);
+      applyVol();
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended' && !document.hidden) ctx.resume();
+    Music.kick();
   }
   function tone(freq, at, dur, { type = 'sine', vol = 0.22, slide = 0, attack = 0.006 } = {}) {
     const t = ctx.currentTime + at;
@@ -1878,7 +1952,7 @@ const Sound = (() => {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vol, t + attack);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+    o.connect(g); g.connect(sfx); o.start(t); o.stop(t + dur + 0.05);
   }
   function noise(at, dur, { vol = 0.12, freq = 1500, q = 0.7, type = 'bandpass' } = {}) {
     const t = ctx.currentTime + at;
@@ -1886,7 +1960,7 @@ const Sound = (() => {
     const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
     const g = ctx.createGain();
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(f); f.connect(g); g.connect(master); src.start(t, Math.random()); src.stop(t + dur + 0.05);
+    src.connect(f); f.connect(g); g.connect(sfx); src.start(t, Math.random()); src.stop(t + dur + 0.05);
   }
   const notes = (seq, step, opts) => seq.forEach((f, i) => tone(f, i * step, opts.dur || 0.18, opts));
   const SFX = {
@@ -1916,6 +1990,100 @@ const Sound = (() => {
     shake()    { [0, 0.1, 0.2].forEach(t => noise(t, 0.08, { vol: 0.1, freq: 2500, q: 2 })); },
     gameover() { notes([523, 440, 349, 262], 0.22, { type: 'triangle', vol: 0.18, dur: 0.4 }); },
   };
+  /* Musique chill générée en direct (aucun fichier) : une boucle lo-fi pour le bar / housing, une boucle chill-hop pour la soirée. */
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+  const TRACKS = {
+    housing: { bpm: 70, swing: 0.12,
+      chords: [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 60, 64], [48, 52, 55, 59, 62]], bass: [41, 40, 38, 36],
+      kick: [0, 10], snare: [4, 12], hat: 2, bassSteps: [0, 10], restrike: [8], scale: [72, 74, 76, 79, 81, 84], melodyP: 0.13 },
+    night: { bpm: 88, swing: 0.16,
+      chords: [[57, 60, 64, 67, 71], [50, 53, 57, 60, 64], [55, 59, 62, 65, 69], [48, 52, 55, 59, 62]], bass: [45, 38, 43, 36],
+      kick: [0, 6, 8, 11], snare: [4, 12], hat: 1, bassSteps: [0, 3, 8, 11, 14], restrike: [6, 11], scale: [69, 72, 74, 76, 79, 81], melodyP: 0.2 },
+  };
+  const Music = (() => {
+    let want = null, cur = null, trackGain = null, crackle = null, timer = 0, next = 0, step = 0, lastNote = 0;
+    function voiceGain(t, peak, attack, dur) {
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      g.connect(trackGain); return g;
+    }
+    function keys(m, t, dur, v) {   // piano électrique doux
+      const f = mtof(m), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1600;
+      const g = voiceGain(t, v, 0.015, dur); lp.connect(g);
+      for (const [mul, a, type] of [[1, 1, 'sine'], [2.001, 0.28, 'sine'], [3, 0.06, 'triangle']]) {
+        const o = ctx.createOscillator(), og = ctx.createGain(); o.type = type; o.frequency.value = f * mul; og.gain.value = a;
+        o.connect(og); og.connect(lp); o.start(t); o.stop(t + dur + 0.05);
+      }
+    }
+    function bass(m, t, dur) {
+      const o = ctx.createOscillator(), lp = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.value = mtof(m);
+      lp.type = 'lowpass'; lp.frequency.value = 380; o.connect(lp); lp.connect(voiceGain(t, 0.32, 0.02, dur)); o.start(t); o.stop(t + dur + 0.05);
+    }
+    function kickD(t) {
+      const o = ctx.createOscillator(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.22);
+      o.connect(voiceGain(t, 0.5, 0.004, 0.32)); o.start(t); o.stop(t + 0.4);
+    }
+    function noiseHit(t, dur, v, type, freq) {
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf; const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+      src.connect(f); f.connect(voiceGain(t, v, 0.003, dur)); src.start(t, Math.random()); src.stop(t + dur + 0.05);
+    }
+    function pluck(m, t, v) {
+      const o = ctx.createOscillator(), lp = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.value = mtof(m);
+      lp.type = 'lowpass'; lp.frequency.setValueAtTime(2600, t); lp.frequency.exponentialRampToValueAtTime(700, t + 0.6);
+      o.connect(lp); lp.connect(voiceGain(t, v, 0.008, 0.9)); o.start(t); o.stop(t + 1);
+    }
+    function schedule() {
+      const tr = TRACKS[cur], sd = 60 / tr.bpm / 4;
+      while (next < ctx.currentTime + 0.3) {
+        const s16 = step % 16, bar = Math.floor(step / 16) % 4, t = next + (s16 % 2 ? tr.swing * sd : 0);
+        const ch = tr.chords[bar];
+        if (s16 === 0) ch.forEach((m, i) => keys(m, t + i * 0.012, sd * 15, 0.055));
+        if (tr.restrike.includes(s16)) ch.slice(1).forEach(m => keys(m, t, sd * 3, 0.03));
+        if (tr.bassSteps.includes(s16)) bass(tr.bass[bar] + (s16 === 8 && cur === 'night' ? 12 : 0), t, sd * (s16 === 0 ? 5 : 2.5));
+        if (tr.kick.includes(s16)) kickD(t);
+        if (tr.snare.includes(s16)) { noiseHit(t, 0.16, cur === 'night' ? 0.11 : 0.06, 'bandpass', 1900); }
+        if (s16 % tr.hat === 0) noiseHit(t, 0.035, (s16 % 4 === 2 ? 0.05 : 0.028) * (cur === 'night' ? 1 : 0.8), 'highpass', 7500);
+        if (s16 % 2 === 0 && Math.random() < tr.melodyP && next - lastNote > sd * 3) {
+          lastNote = next;
+          pluck(pick(tr.scale), t, cur === 'night' ? 0.07 : 0.055);
+        }
+        next += sd; step++;
+      }
+    }
+    function startTrack(name) {
+      cur = name; step = 0; next = ctx.currentTime + 0.12;
+      trackGain = ctx.createGain(); trackGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      trackGain.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 1.5);
+      trackGain.connect(musicBus);
+      clearInterval(timer); timer = setInterval(schedule, 60); schedule();
+    }
+    function stopTrack() {
+      if (!cur) return;
+      clearInterval(timer); timer = 0;
+      const g = trackGain; g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.35);
+      setTimeout(() => { try { g.disconnect(); } catch { /* ignore */ } }, 2000);
+      cur = null;
+    }
+    /** Démarre / change la piste voulue si le contexte audio existe déjà (sinon au premier geste). */
+    function kick() {
+      if (!ctx) return;
+      const target = muted || document.hidden ? null : want;
+      if (target === cur) return;
+      stopTrack();
+      if (!crackle) {
+        crackle = ctx.createBufferSource(); crackle.buffer = crackleBuf; crackle.loop = true;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1200;
+        const g = ctx.createGain(); g.gain.value = 0.5; crackle.connect(hp); hp.connect(g); g.connect(musicBus); crackle.start();
+      }
+      if (target) startTrack(target);
+    }
+    return { set(name) { want = name; kick(); }, kick };
+  })();
+  document.addEventListener('visibilitychange', () => {
+    if (!ctx) return;
+    if (document.hidden) { Music.kick(); ctx.suspend(); } else { ctx.resume(); Music.kick(); }
+  });
+
   // Bruit continu du tirage : la note monte quand le verre se remplit
   let pourNode = null;
   function pourStart() {
@@ -1924,7 +2092,7 @@ const Sound = (() => {
     const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
     const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.value = 450;
     const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, ctx.currentTime); g.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 0.06);
-    src.connect(f); f.connect(g); g.connect(master); src.start();
+    src.connect(f); f.connect(g); g.connect(sfx); src.start();
     pourNode = { src, f, g };
   }
   function pourLevel(level) { if (pourNode) pourNode.f.frequency.setTargetAtTime(450 + level * 1700, ctx.currentTime, 0.05); }
@@ -1936,8 +2104,11 @@ const Sound = (() => {
   return {
     init, pourStart, pourLevel, pourStop,
     play(name) { if (muted) return; init(); if (!ctx) return; try { SFX[name] && SFX[name](); } catch { /* ignore */ } },
-    toggle() { muted = !muted; Store.set('muted', muted); if (muted) pourStop(); else init(); return muted; },
+    toggle() { muted = !muted; Store.set('muted', muted); if (muted) pourStop(); else init(); applyVol(); Music.kick(); return muted; },
     get muted() { return muted; },
+    music(name) { Music.set(name); },
+    get vol() { return vol; },
+    setVol(k, v) { vol[k] = clamp(v, 0, 1); Store.set('vol', vol); applyVol(); },
   };
 })();
 
@@ -3044,6 +3215,7 @@ function renderAchievements() {
     const ok = unlocked.has(a.id);
     return `<div class="ach ${ok ? 'unlocked' : 'locked'}"><span class="a-ico">${ok ? a.icon : '🔒'}</span><div><b>${a.name}</b><small>${a.desc}</small></div></div>`;
   }).join('');
+  requestAnimationFrame(() => paginate($('#ov-ach .modal-box'), [...$$('#ach-grid .ach')], 'ach', null));
 }
 
 /* ---------------------------------------------------------
@@ -3242,8 +3414,79 @@ function frame(now) {
    14. ÉCRANS, PAUSE, FIN DE PARTIE
    --------------------------------------------------------- */
 let currentScreen = 'title';
+/* ---------- Tout tient sur un écran : pages pour les listes, léger zoom arrière pour le reste ---------- */
+const PAGES = {};
+/** Répartit `units` en pages qui tiennent dans `box` (sans scroll) et ajoute ◀ 1/3 ▶. */
+function paginate(box, units, key, host) {
+  box.querySelectorAll(':scope .pager').forEach(p => p.remove());
+  units.forEach(u => u.classList.remove('pg-off'));
+  box.querySelectorAll('.pg-empty').forEach(e => e.classList.remove('pg-empty'));
+  box.scrollTop = 0;
+  units = units.filter(u => u.getClientRects().length);   // on ignore ce qui est masqué par le CSS
+  if (!box.clientHeight || !units.length || box.scrollHeight <= box.clientHeight + 1) return;
+  const pager = document.createElement('div'); pager.className = 'pager';
+  pager.innerHTML = '<button type="button" data-pg="-1" aria-label="Page précédente">◀</button><span></span><button type="button" data-pg="1" aria-label="Page suivante">▶</button>';
+  (host || box).appendChild(pager);
+  const bt = box.getBoundingClientRect().top - box.scrollTop;
+  const top = u => u.getBoundingClientRect().top - bt;
+  const first = top(units[0]);
+  const lastU = units[units.length - 1], tail = box.scrollHeight - (top(lastU) + lastU.offsetHeight);   // ce qui suit la liste (pager, boutons…)
+  const avail = box.clientHeight - first - tail - 6;
+  const page = []; let n = 0, start = first;
+  units.forEach((u, i) => {
+    const t = top(u), b = t + u.offsetHeight;
+    if (i && b - start > avail && t > start + 1) {
+      n++; start = t;
+      if (units[i - 1].tagName === 'H4') { page[i - 1] = n; start = top(units[i - 1]); }   // pas de titre orphelin en bas de page
+    }
+    page[i] = n;
+  });
+  const total = n + 1;
+  const show = k => {
+    PAGES[key] = k = clamp(k, 0, total - 1);
+    units.forEach((u, i) => u.classList.toggle('pg-off', page[i] !== k));
+    box.querySelectorAll('.lp-section').forEach(sec => { const mine = units.filter(u => sec.contains(u)); sec.classList.toggle('pg-empty', mine.length > 0 && mine.every(u => u.classList.contains('pg-off'))); });
+    pager.querySelector('span').textContent = `${k + 1} / ${total}`;
+    pager.querySelector('[data-pg="-1"]').disabled = k === 0;
+    pager.querySelector('[data-pg="1"]').disabled = k === total - 1;
+  };
+  pager.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (b) { e.stopPropagation(); show(PAGES[key] + +b.dataset.pg); Sound.play('tick'); } });
+  show(PAGES[key] || 0);
+}
+function paginateLobby() {
+  const body = $('#lp-body'), units = [];
+  for (const ch of body.children) {
+    if (!ch.classList.contains('lp-section')) { units.push(ch); continue; }
+    for (const c of ch.children) {
+      const li = c.id === 'rank-box' ? c.querySelectorAll('li') : null;
+      if (li && li.length) units.push(...li); else units.push(c);
+    }
+  }
+  paginate(body, units, 'lobby-' + M.tab);
+}
+/** Écrans et fenêtres : si le contenu dépasse, on le réduit juste assez pour qu'il tienne. */
+function fitScreens() {
+  for (const sc of $$('.screen.scroll.active')) {
+    const inner = sc.firstElementChild; if (!inner) continue;
+    inner.style.zoom = '';
+    for (let i = 0; i < 2; i++) {
+      const need = sc.scrollHeight, avail = sc.clientHeight;
+      if (need <= avail + 1) break;
+      inner.style.zoom = Math.max(0.5, (+inner.style.zoom || 1) * avail / need).toFixed(3);
+    }
+  }
+  for (const box of $$(".overlay.show .modal-box:not(#ov-ach .modal-box)")) {
+    box.style.zoom = ''; box.style.maxHeight = '';
+    if (box.scrollHeight > box.clientHeight + 1) { box.style.zoom = Math.max(0.5, box.clientHeight / box.scrollHeight).toFixed(3); box.style.maxHeight = 'none'; }
+  }
+}
+let fitRaf = 0;
+const scheduleFit = () => { if (!fitRaf) fitRaf = requestAnimationFrame(() => { fitRaf = 0; fitScreens(); }); };
+
 function showScreen(name) {
   currentScreen = name;
+  Sound.music(name === 'game' ? 'night' : 'housing');
+  scheduleFit();
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
 }
 function startGame() {
@@ -3321,10 +3564,14 @@ function updateSoundButtons() {
   $$('.btn-sound').forEach(b => {
     b.textContent = b.classList.contains('icon-btn') ? (m ? '🔇' : '🔊') : (m ? '🔇 Son coupé' : '🔊 Son activé');
     b.setAttribute('aria-label', m ? 'Activer le son' : 'Couper le son');
-    b.setAttribute('aria-pressed', String(m));
+    b.setAttribute('aria-label', 'Réglages du son');
   });
+  const vm = $('#vol-mute'); if (vm) { vm.textContent = m ? '🔊 Réactiver le son' : '🔇 Couper tout le son'; vm.setAttribute('aria-pressed', String(m)); }
+  $$('.vol-row input').forEach(el => { el.disabled = m; });
 }
 function toggleSound() { Sound.toggle(); updateSoundButtons(); Sound.play('tick'); }
+function openAudio() { Sound.init(); updateSoundButtons(); $('#ov-audio').classList.add('show'); Sound.play('tick'); }
+const paintRange = el => el.style.setProperty('--p', el.value + '%');
 const fsSupported = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
 function toggleFullscreen() {
   const d = document, el = d.documentElement;
@@ -3342,7 +3589,22 @@ function bindUI() {
   $('#btn-close-night').addEventListener('click', closeEarly);
   $('#btn-pause').addEventListener('click', pauseGame);
   $('#btn-resume').addEventListener('click', resumeGame);
-  $$('.btn-sound').forEach(b => b.addEventListener('click', toggleSound));
+  $$('.btn-sound').forEach(b => b.addEventListener('click', openAudio));
+  document.addEventListener('pointerdown', () => { if (!Sound.muted) Sound.init(); }, { once: true, capture: true });
+  new MutationObserver(muts => { if (muts.some(m => !m.target.closest || !m.target.closest('#screen-game, #lp-body, .lobby-3d'))) scheduleFit(); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  let rsT = 0;
+  window.addEventListener('resize', () => { scheduleFit(); clearTimeout(rsT); rsT = setTimeout(() => { if (currentScreen === 'lobby' && M.save) renderPanel(); if ($('#ov-ach.show')) renderAchievements(); }, 150); });
+  for (const k of ['master', 'music', 'sfx']) {
+    const el = $('#vol-' + k);
+    el.value = Math.round(Sound.vol[k] * 100);
+    el.addEventListener('input', () => { Sound.setVol(k, el.value / 100); paintRange(el); });
+    if (k === 'sfx') el.addEventListener('change', () => Sound.play('clink'));
+    paintRange(el);
+  }
+  $('#vol-mute').addEventListener('click', () => { toggleSound(); });
+  $('#vol-close').addEventListener('click', () => $('#ov-audio').classList.remove('show'));
+  $('#ov-audio').addEventListener('click', e => { if (e.target.id === 'ov-audio') $('#ov-audio').classList.remove('show'); });
   $$('.btn-fs').forEach(b => b.addEventListener('click', toggleFullscreen));
   document.addEventListener('fullscreenchange', updateFsButtons);
   document.addEventListener('webkitfullscreenchange', updateFsButtons);
@@ -3572,7 +3834,7 @@ const Cloud = {
   },
   pushArcade(player, name, score, ca) { this.post('arcade_scores', { player_id: player, pseudo: name, score: Math.round(score), ca: Math.round(ca) }); },
   top() { return this.get('bars?select=player_id,pseudo,city,total_ca,best_night,day&order=total_ca.desc&limit=50'); },
-  topArcade() { return this.get('arcade_scores?select=player_id,pseudo,score,ca,created_at&order=score.desc&limit=20'); },
+  topArcade() { return this.get('arcade_scores?select=player_id,pseudo,score,ca,created_at&order=score.desc&limit=10'); },
 };
 
 /** Compte « pseudo + mot de passe de partie » : la sauvegarde (bar + arcade) est copiée en ligne
@@ -3640,7 +3902,8 @@ const Account = {
     try {
       const r = await this.rpc('account_login', { p_pseudo: se.pseudo, p_pass: se.pass });
       if (r.status === 'ok') { if (this.adopt(r.data)) return true; this.push(); }
-      else if (r.status === 'new' || r.status === 'bad') { localStorage.removeItem(ACCOUNT_KEY); return true; }
+      else if (r.status === 'new') { this.logout(); return true; }   // compte supprimé en ligne : on vide aussi l'appareil
+      else if (r.status === 'bad') { localStorage.removeItem(ACCOUNT_KEY); return true; }
     } catch { /* hors ligne : on garde l'appareil */ }
     return false;
   },
@@ -3858,29 +4121,29 @@ const World = (() => {
     scene.add(new T.AmbientLight(0xffffff, 0.12));
     plane(400, 400, lam(0xffffff, { map: T_.grass() }), 0, 0, 0);
     // esplanade pavée devant le bar (place pour la grande terrasse)
-    plane(40, PLAZA_Z + 24, lam(0xffffff, { map: T_.paving() }), 6, 0.01, PLAZA_Z / 2 - 12);
+    plane(40, PLAZA_Z + 24, lam(0xffffff, { map: T_.paving() }), 6, 0.012, PLAZA_Z / 2 - 12);
     // parking
-    plane(64, 15.5, lam(0xffffff, { map: T_.asphalt() }), 3, 0.015, (PLAZA_Z + 25.5) / 2);
+    plane(64, 15.5, lam(0xffffff, { map: T_.asphalt() }), 3, 0.024, (PLAZA_Z + 25.5) / 2);
     const lineM = basic({ color: 0xf2f2f2 });
     spots = [];
     for (const [rowZ, zA, zB, dir] of [[ROW_A, PLAZA_Z + 0.3, 15.6, -1], [ROW_B, 20.4, 25.4, 1]]) {
       for (let x = -26; x <= 28; x += 2.8) {
         if (Math.abs(x - BAR_XL - 2.25) < 2.4) continue;   // passage piéton vers l'entrée
-        const l = plane(0.12, zB - zA, lineM, x - 1.4, 0.03, (zA + zB) / 2);
+        const l = plane(0.12, zB - zA, lineM, x - 1.4, 0.06, (zA + zB) / 2);
         spots.push({ x, z: rowZ, dir, taken: false });
       }
     }
     // passage piéton peint
-    for (let i = 0; i < 6; i++) plane(0.5, 2.6, basic({ color: 0xf2f2f2 }), BAR_XL + 1.2 + i * 0.6, 0.03, ROW_A);
-    plane(0.15, 64, lineM, 3, 0.03, AISLE_Z).rotation.z = Math.PI / 2;
+    for (let i = 0; i < 6; i++) plane(0.5, 2.6, basic({ color: 0xf2f2f2 }), BAR_XL + 1.2 + i * 0.6, 0.06, ROW_A);
+    plane(0.15, 64, lineM, 3, 0.06, AISLE_Z).rotation.z = Math.PI / 2;
     // bande paysagère + allée piétonne
-    plane(64, 2.5, lam(0x6f9a44), 3, 0.02, STRIP_Z - 0.6);
+    plane(64, 2.4, lam(0x6f9a44), 3, 0.048, STRIP_Z - 0.6);
     for (let x = -26; x <= 26; x += 7) if (Math.abs(x - DRIVE_X) > 5) tree(x, STRIP_Z - 0.6, 0.8);
     for (let x = -24; x <= 26; x += 3.5) if (Math.abs(x - DRIVE_X) > 5) bush(x + 1.7, STRIP_Z - 0.6, 0.8);
     // route principale + voie d'accès
-    plane(400, 7.5, lam(0xffffff, { map: T_.road() }), 0, 0.02, (LANE_E + LANE_W) / 2);
-    plane(6, 12, lam(0xffffff, { map: T_.asphalt() }), DRIVE_X, 0.018, 23);
-    plane(400, 2.4, lam(0xffffff, { map: T_.paving() }), 0, 0.02, 36.4);
+    plane(400, 7.5, lam(0xffffff, { map: T_.road() }), 0, 0.03, (LANE_E + LANE_W) / 2);
+    plane(6, 12, lam(0xffffff, { map: T_.asphalt() }), DRIVE_X, 0.036, 23);
+    plane(400, 2.4, lam(0xffffff, { map: T_.paving() }), 0, 0.042, 36.6);   // trottoir d'en face, sans recouvrir la route
     // commerces voisins
     bigStore(-58, -32, -16, 6, 8, 0xe9e4da, 'MARCHÉ FRAIS', '#2e8b3a');
     bigStore(24, 50, -18, 4, 9, 0xdad4c8, 'BRICO & JARDIN', '#e0701a');
@@ -3896,7 +4159,7 @@ const World = (() => {
     // lampadaires sur les bords du parking (jamais dans l'allée où roulent les voitures)
     for (const x of [-22, -9, 16, 24]) lampPost(x, PLAZA_Z - 0.4);
     for (const x of [-20, -6, 8, 20]) lampPost(x, 25.9);
-    for (const x of [-13.5, 22.5]) tree(x, 6, 0.9);
+    for (const x of [-14.5, 24.5]) tree(x, 7.5, 0.9);
   }
 
   /* ---------- le bâtiment ---------- */
@@ -4028,7 +4291,7 @@ const World = (() => {
     const H = geo.H, cx = xL + W / 2, up = sv.upgrades;
     const cut = o => { cutParts.push(o); return o; };
     const ghost = o => { ghostParts.push(o); return o; };
-    plane(W, D, lam(0xffffff, { map: T_.parquet() }), cx, 0.03, -D / 2, bldG);
+    plane(W, D, lam(0xffffff, { map: T_.parquet() }), cx, 0.05, -D / 2, bldG);
     const ext = lam(0xffffff, { map: T_.cladding() });
     // murs (arrière et gauche restent visibles en vue intérieure)
     const back = solid(new T.Mesh(new T.BoxGeometry(W + 0.3, H, 0.3), [ext, ext, ext, ext, lam(0xffffff, { map: wallTex(W + 0.3, H, 'back') }), ext])); back.position.set(cx - 0.15, H / 2, -D - 0.15); bldG.add(back);
@@ -4146,19 +4409,64 @@ const World = (() => {
     const warm = new T.PointLight(0xffb468, 0.8, Math.max(16, W * 1.1)); warm.position.set(cx, 3.4, -D / 2); bldG.add(warm);
     const warm2 = new T.PointLight(0xffc27a, 0.55, 9); warm2.position.set(ccx, 2.8, cz + 0.6); bldG.add(warm2);
     // fantôme de l'agrandissement suivant
+    previewParts = [];
     if (sv.size < SIZES.length) {
+      const prev = o => { previewParts.push(o); return o; };
       const ng = computeGeo(sv.size + 1);
       const gm = new T.MeshBasicMaterial({ color: 0xffd54a, transparent: true, opacity: 0.12, depthWrite: false });
-      const gb = new T.Mesh(new T.BoxGeometry(ng.W, ng.H, ng.D), gm); gb.position.set(ng.xL + ng.W / 2, ng.H / 2, -ng.D / 2); bldG.add(cut(gb));
-      const ed = new T.LineSegments(new T.EdgesGeometry(gb.geometry), new T.LineBasicMaterial({ color: 0xffd54a })); ed.position.copy(gb.position); bldG.add(cut(ed));
-      const tb = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(ng.W, 0.05, ng.T)), new T.LineBasicMaterial({ color: 0xffd54a })); tb.position.set(ng.xL + ng.W / 2, 0.05, ng.T / 2); bldG.add(tb);
-      const lb = label('＋ ' + SIZES[sv.size].name); lb.position.set(ng.xL + ng.W - 2, ng.H + 2.6, -ng.D / 2); bldG.add(cut(lb));
+      const gb = new T.Mesh(new T.BoxGeometry(ng.W + 0.9, ng.H + 0.6, ng.D + 0.9), gm); gb.position.set(ng.xL + ng.W / 2, (ng.H + 0.6) / 2, -ng.D / 2); bldG.add(prev(gb));
+      const ed = new T.LineSegments(new T.EdgesGeometry(gb.geometry), new T.LineBasicMaterial({ color: 0xffd54a })); ed.position.copy(gb.position); bldG.add(prev(ed));
+      const tb = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(ng.W, 0.05, ng.T)), new T.LineBasicMaterial({ color: 0xffd54a })); tb.position.set(ng.xL + ng.W / 2, 0.09, ng.T / 2); bldG.add(prev(tb));
+      const lb = label('＋ ' + SIZES[sv.size].name); lb.position.set(ng.xL + ng.W - 2, ng.H + 2.6, -ng.D / 2); bldG.add(prev(lb));
     }
+    buildOutdoorProps();
     // terrasse
     const te = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(W, 0.04, TT)), new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 }));
-    te.position.set(cx, 0.04, TT / 2); bldG.add(te);
-    plane(W, TT, lam(0xffffff, { map: T_.planks() }), cx, 0.02, TT / 2, bldG);
+    te.position.set(cx, 0.07, TT / 2); bldG.add(te);
+    plane(W, TT, lam(0xffffff, { map: T_.planks() }), cx, 0.05, TT / 2, bldG);
     applyCut();
+  }
+  /** Abords du bâtiment : local poubelles, armoire électrique, parterres de fleurs (suivent la taille du bar). */
+  function flowerBed(x, z, w, d) {
+    rbox(w, 0.38, d, lam(0x8f8a82), x, 0, z, bldG, 0.06);                       // bordure béton
+    plane(w - 0.24, d - 0.24, lam(0x5a3d26), x, 0.39, z, bldG);                 // terre
+    const n = Math.max(3, Math.round(w * d * 2.2));
+    for (let i = 0; i < n; i++) {
+      const fx = x + rand(-0.5, 0.5) * (w - 0.45), fz = z + rand(-0.5, 0.5) * (d - 0.45);
+      sphere(rand(0.14, 0.22), lam(pick([0x6fa83a, 0x5e9631, 0x7cb342])), fx, 0.5, fz, bldG, 12);
+      sphere(0.075, lam(pick([0xff6f91, 0xffd54a, 0xffffff, 0xb388ff, 0xff8a3d])), fx + rand(-0.08, 0.08), 0.66, fz + rand(-0.08, 0.08), bldG, 10);
+    }
+  }
+  function wheelieBin(x, z, col, rotY = 0) {
+    const g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = rotY; bldG.add(g);
+    rbox(0.6, 1.0, 0.72, lam(col), 0, 0.08, 0, g, 0.06);
+    rbox(0.66, 0.07, 0.8, lam(col === 0x2e7d32 ? 0x1b5e20 : col === 0xf2c200 ? 0xc9a000 : 0x3a3a3a), 0, 1.08, 0.02, g, 0.03);
+    for (const sx of [-0.27, 0.27]) { const w = cyl(0.08, 0.08, 0.06, lam(0x1b1b1b), sx, 0.08, -0.3, g, 14); w.rotation.z = Math.PI / 2; w.position.y = 0.08; }
+    return g;
+  }
+  function buildOutdoorProps() {
+    const { xL, x1, D, T: TT } = geo;
+    // local poubelles derrière le bâtiment, à côté de la cuisine : muret en bois + 3 conteneurs (ordures, tri, verre)
+    const bx = xL + 1.6, bz = -D - 1.4;
+    rbox(3.6, 1.25, 0.12, lam(0x8a5a36), bx, 0, bz - 0.62, bldG, 0.03);
+    for (const sx of [-1, 1]) rbox(0.12, 1.25, 1.3, lam(0x8a5a36), bx + sx * 1.8, 0, bz, bldG, 0.03);
+    wheelieBin(bx - 1.1, bz, 0x3a3f44); wheelieBin(bx, bz, 0xf2c200); wheelieBin(bx + 1.1, bz, 0x2e7d32);
+    // armoire électrique contre le mur gauche, avec le logo éclair
+    const ex = xL - 0.6, ez = -D * 0.62;
+    rbox(0.42, 1.55, 1.0, lam(0xb7bcc0), ex, 0, ez, bldG, 0.04);
+    rbox(0.04, 1.35, 0.86, lam(0x9ea4a9), ex - 0.22, 0.1, ez, bldG, 0.01);
+    const bolt = new T.Mesh(new T.PlaneGeometry(0.34, 0.34), basic({ map: canvasTex(128, 128, (g, w, h) => {
+      g.fillStyle = '#ffd54a'; g.beginPath(); g.moveTo(w / 2, 8); g.lineTo(w - 8, h - 12); g.lineTo(8, h - 12); g.closePath(); g.fill();
+      g.fillStyle = '#1a1a1a'; g.beginPath(); g.moveTo(70, 34); g.lineTo(48, 78); g.lineTo(64, 78); g.lineTo(56, 104); g.lineTo(82, 64); g.lineTo(66, 64); g.closePath(); g.fill();
+    }, null, 'boltSign'), transparent: true }));
+    bolt.position.set(ex - 0.245, 1.15, ez); bolt.rotation.y = -Math.PI / 2; bldG.add(bolt);
+    cyl(0.05, 0.05, 0.5, lam(0x6d7378), ex, 1.55, ez + 0.3, bldG, 10);
+    // parterres de fleurs : à gauche de la terrasse et le long du flanc droit
+    flowerBed(xL - 1.7, Math.max(1.6, TT / 2), 1.6, Math.max(2.2, TT - 1));
+    flowerBed(x1 + 1.4, -D * 0.3, 1.4, Math.max(2.5, D * 0.45));
+    flowerBed(x1 + 1.4, -D * 0.78, 1.4, Math.max(2, D * 0.3));
+    // petits massifs aux angles avant de l'esplanade
+    flowerBed(x1 + 1.6, TT / 2 + 0.3, 1.8, 1.8);
   }
   /** Vue intérieure : on retire façade, toit, pergola et mobilier de terrasse pour voir dans le bar. */
   let ghostParts = [];
@@ -4173,8 +4481,10 @@ const World = (() => {
       if (o.isMesh) o.castShadow = !on;
     });
   }
+  let previewParts = [], previewOn = false;
   function applyCut() {
     for (const o of cutParts) o.visible = view === 'out';
+    for (const o of previewParts) o.visible = previewOn && view === 'out';
     for (const o of ghostParts) ghostly(o, view === 'in');
     if (itemsG) for (const g of itemsG.children) { g.visible = true; if (g.userData.zone === 'out') ghostly(g, view === 'in'); }
   }
@@ -4650,7 +4960,7 @@ const World = (() => {
   }
   function init() {
     wrap = $('#lobby-3d');
-    if (!failed) { try { renderer = new T.WebGLRenderer({ antialias: true, powerPreference: 'low-power' }); } catch { failed = true; renderer = null; } }
+    if (!failed) { try { renderer = new T.WebGLRenderer({ antialias: true, powerPreference: 'low-power', logarithmicDepthBuffer: true }); } catch { failed = true; renderer = null; } }
     if (failed) { wrap.insertAdjacentHTML('beforeend', '<div class="l3d-fallback">🏗️ La vue 3D n\'est pas disponible sur cet appareil.<br>Tu peux quand même gérer ton bar avec les onglets.</div>'); return; }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
     renderer.outputEncoding = T.sRGBEncoding;
@@ -4660,7 +4970,7 @@ const World = (() => {
     scene = new T.Scene();
     scene.background = T_.sky();
     scene.fog = new T.Fog(0xdfeaf3, 70, 170);
-    camera = new T.PerspectiveCamera(45, 1, 0.3, 400);
+    camera = new T.PerspectiveCamera(45, 1, 0.6, 260);
     target = new T.Vector3(3, 1.5, 7); targetGoal = target.clone();
     buildEnv();
     bldG = new T.Group(); itemsG = new T.Group(); gridG = new T.Group(); npcG = new T.Group();
@@ -4694,6 +5004,7 @@ const World = (() => {
     set onTap(fn) { onCellTap = fn; },
     set onHover(fn) { onCellHover = fn; },
     setGhost(id, key, rot, valid, locked) { if (renderer && !failed) setGhost(id, key, rot, valid, locked); },
+    setPreview(on) { if (previewOn === !!on) return; previewOn = !!on; if (renderer && !failed && geo) applyCut(); },
     show(save) {
       sv = save;
       if (!renderer && !failed) init();
@@ -4722,6 +5033,7 @@ const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(
 const titleCase = s => s.trim().replace(/\s+/g, ' ').toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 let obCity = '';
 function renderTitle() {
+  $('#screen-title').classList.toggle('login-mode', Account.needed);
   if (Account.needed) {
     $('#title-actions').innerHTML = `<div class="login-box">
         <h3>👋 Qui est derrière le comptoir ?</h3>
@@ -4771,7 +5083,7 @@ function openOnboard() {
 }
 function renderCities(q) {
   const nq = norm(q);
-  const list = CITIES.filter(c => norm(c).includes(nq)).slice(0, nq ? 30 : 24);
+  const list = CITIES.filter(c => norm(c).includes(nq)).slice(0, nq ? 12 : 9);
   let html = list.map(c => `<button class="city-btn${c === obCity ? ' sel' : ''}" data-city="${escapeHTML(c)}" type="button">${escapeHTML(c)}</button>`).join('');
   if (q.trim().length >= 2 && !CITIES.some(c => norm(c) === nq)) {
     const custom = titleCase(q).slice(0, 28);
@@ -4832,6 +5144,7 @@ function renderLobby() {
   ai.textContent = left === 0 ? `🎡 ${ANIMATOR.name}, l'animateur réseau, passe ce soir !` : `🧑‍💼 Prochaine visite de ${ANIMATOR.name} dans ${left} jour${left > 1 ? 's' : ''}`;
   $('#btn-night').innerHTML = `${BEER2} LANCER LA SOIRÉE · JOUR ${s.day}`;
   $$('.lp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === M.tab));
+  World.setPreview(M.tab === 'works');   // le volume du prochain agrandissement, uniquement dans l'onglet Travaux
   renderPanel();
 }
 function fxSummary() {
@@ -4839,7 +5152,12 @@ function fxSummary() {
   return `<div class="fx-bar">${Object.keys(FX_CAPS).map(k => `<span class="${fx[k] >= FX_CAPS[k] ? 'max' : ''}">${{ traffic: '👥', ambiance: '🎶', patience: '⏳', tips: '💰' }[k]} ${FX_LABEL[k](fx[k])}${fx[k] >= FX_CAPS[k] ? ' (max)' : ''}</span>`).join('')}</div>`;
 }
 function renderPanel() {
+  renderPanelBody();
+  paginateLobby();
+}
+function renderPanelBody() {
   const s = M.save, body = $('#lp-body');
+  body.dataset.tab = M.tab;
   if (M.tab === 'works') {
     const cur = sizeDef(), next = SIZES[s.size];
     let html = `<div class="lp-section"><h4>Ton établissement <small>niveau ${s.size}/${SIZES.length}</small></h4>
@@ -4862,16 +5180,16 @@ function renderPanel() {
     const free = cells.filter(c => !c.block && !s.layout.some(e => e.key === c.key)).length;
     let html = `<div class="seg"><button class="${z === 'in' ? 'on' : ''}" data-act="zone" data-id="in" type="button">🛋️ Intérieur</button><button class="${z === 'out' ? 'on' : ''}" data-act="zone" data-id="out" type="button">⛱️ Terrasse</button></div>`;
     html += `<div class="lp-section"><h4>Bonus de ta déco <small>appliqués chaque soir</small></h4>${fxSummary()}</div>`;
-    html += `<div class="lp-section"><h4>${z === 'in' ? 'Intérieur' : 'Terrasse'} <small>${free} case${free > 1 ? 's' : ''} libre${free > 1 ? 's' : ''}</small></h4>
-      <p class="lp-note">👆 Touche un objet dans la vue 3D pour le <b>déplacer</b>, le <b>tourner</b> ou le <b>ranger</b>.<br>Les cases rayées sont des <b>passages clients</b> (porte ↔ comptoir, parking ↔ porte) : on ne peut rien y poser.</p></div>`;
-    html += `<div class="lp-section"><h4>Catalogue</h4>`;
-    for (const d of DECOR.filter(d => d.zone === z || d.zone === 'both')) {
+    html += `<div class="lp-section"><h4>Catalogue · ${z === 'in' ? 'intérieur' : 'terrasse'} <small>${free} case${free > 1 ? 's' : ''} libre${free > 1 ? 's' : ''}</small></h4>`;
+    const tiles = DECOR.filter(d => d.zone === z || d.zone === 'both').map(d => {
       const owned = s.layout.filter(e => e.id === d.id).length, stock = s.inventory[d.id] || 0;
-      html += `<div class="ucard"><span class="u-ico">${d.icon}</span><div class="u-txt"><b>${d.name}${owned ? `<span class="grade">×${owned}</span>` : ''}</b>
-        <small class="u-effect">${fxText(d.fx)}${d.seats ? ` · ${d.seats} places` : ''}</small>${stock ? `<small>📦 ${stock} en réserve</small>` : ''}</div>
-        <button class="buy" data-act="place" data-id="${d.id}" type="button" ${!free || (!stock && s.money < d.price) ? 'disabled' : ''}>${stock ? 'Choisir<br>gratuit' : 'Choisir<br>' + fmtEUR(d.price)}</button></div>`;
-    }
-    body.innerHTML = html + `</div><p class="lp-note">Bonus plafonnés : clients +${FX_CAPS.traffic} %, ambiance +${FX_CAPS.ambiance}, patience +${FX_CAPS.patience} %, pourboires +${FX_CAPS.tips} %.</p>`;
+      return `<button class="dtile" data-act="place" data-id="${d.id}" type="button" ${!free || (!stock && s.money < d.price) ? 'disabled' : ''} title="${escapeHTML(d.name + ' · ' + fxText(d.fx))}">
+        ${owned ? `<span class="d-own">×${owned}</span>` : ''}<span class="d-ico">${d.icon}</span><b>${d.name}</b>
+        <small>${fxText(d.fx)}${d.seats ? ` · ${d.seats} pl.` : ''}</small><span class="d-price">${stock ? `📦 gratuit (${stock})` : fmtEUR(d.price)}</span></button>`;
+    });
+    // tuiles groupées par lignes de 3 pour la pagination
+    for (let i = 0; i < tiles.length; i += 3) html += `<div class="dgrid">${tiles.slice(i, i + 3).join('')}</div>`;
+    body.innerHTML = html + `</div><p class="lp-note">👆 Touche un objet dans la vue 3D pour le déplacer, le tourner ou le ranger. Cases rayées = passages clients.</p>`;
   } else if (M.tab === 'team') {
     const max = staffMax(), full = s.staff.length >= max;
     let html = `<div class="lp-section"><h4>Ton équipe <small>${s.staff.length}/${max}</small></h4>`;
@@ -4910,6 +5228,7 @@ function renderPanel() {
     body.innerHTML = html;
     if (Cloud.on) Cloud.top().then(rows => {
       const box = $('#rank-box'); if (!box) return;
+      setTimeout(paginateLobby, 0);
       if (!rows) { box.innerHTML = '<p class="lp-note">Classement indisponible (hors ligne ?).</p>'; return; }
       box.innerHTML = rows.length ? `<ol class="rank-list">${rows.map((r, i) => `<li class="${r.player_id === s.playerId ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>My Beers ${escapeHTML(r.city)}</b><small>${escapeHTML(r.pseudo)} · jour ${r.day}</small></span><span class="v">${fmtEUR(r.total_ca)}</span></li>`).join('')}</ol>` : '<p class="lp-note">Sois le premier du classement !</p>';
     });
@@ -5500,7 +5819,7 @@ function openArcade() {
 }
 function renderArcadeBoard(el, a, highlight) {
   el.innerHTML = a.scores.length
-    ? `<ol class="rank-list">${a.scores.slice(0, 10).map((r, i) => `<li class="${r.t === highlight ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>${escapeHTML(r.name)}</b><small>${new Date(r.t).toLocaleDateString('fr-FR')} · ${fmtEUR(r.ca)} de caisse</small></span><span class="v">${fmtNum(r.score)}</span></li>`).join('')}</ol>`
+    ? `<ol class="rank-list">${a.scores.slice(0, 5).map((r, i) => `<li class="${r.t === highlight ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>${escapeHTML(r.name)}</b><small>${new Date(r.t).toLocaleDateString('fr-FR')} · ${fmtEUR(r.ca)} de caisse</small></span><span class="v">${fmtNum(r.score)}</span></li>`).join('')}</ol>`
     : '<p class="lp-note">Aucune partie arcade pour l\'instant sur cet appareil.</p>';
 }
 function startArcade() {
@@ -5572,7 +5891,7 @@ function bindMeta() {
   $('#ob-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#ob-city').focus(); });
   $('#ob-go').addEventListener('click', finishOnboard);
   $('#ob-back').addEventListener('click', () => { renderTitle(); showScreen('title'); });
-  $$('.lp-tab').forEach(t => t.addEventListener('click', () => { cancelEdit(true); M.tab = t.dataset.tab; Sound.play('tick'); renderLobby(); if (M.tab === 'decor') { setLobbyView(World.view); enterDecorMode(); } }));
+  $$('.lp-tab').forEach(t => t.addEventListener('click', () => { cancelEdit(true); if (M.tab !== t.dataset.tab) PAGES['lobby-' + t.dataset.tab] = 0; M.tab = t.dataset.tab; Sound.play('tick'); renderLobby(); if (M.tab === 'decor') { setLobbyView(World.view); enterDecorMode(); } }));
   $('#lp-body').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) lobbyAction(b.dataset.act, b.dataset.id); });
   $('#view-toggle').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { setLobbyView(b.dataset.view); Sound.play('tick'); } });
   $('#edit-bar').addEventListener('click', e => {
