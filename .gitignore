@@ -1,0 +1,6 @@
+# Images de référence (visuels tiers, non publiés)
+*.jpg
+*.jpeg
+*.png
+# Système
+.DS_Store
