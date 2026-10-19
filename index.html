@@ -2100,7 +2100,7 @@ const Sound = (() => {
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       applyVol();
     }
-    if (ctx.state === 'suspended' && !document.hidden) ctx.resume();
+    if (ctx.state !== 'running' && !document.hidden) ctx.resume().catch(() => {});
     Music.kick();
   }
   function tone(freq, at, dur, { type = 'sine', vol = 0.22, slide = 0, attack = 0.006 } = {}) {
@@ -2233,9 +2233,29 @@ const Sound = (() => {
     }
     return { set(name) { want = name; kick(); }, kick };
   })();
+  /* iPhone / Safari : le son Web Audio est coupé par le bouton silencieux et ne démarre que pendant un vrai toucher.
+     On déclare la page comme lecteur multimédia (audioSession « playback », ou un petit son muet en boucle sur les anciens iOS)
+     et on relance l'audio à chaque geste tant qu'il n'est pas actif. */
+  const SILENT = 'data:audio/wav;base64,UklGRvQHAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YdAHAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+  let keepAlive = null;
+  function unlock() {
+    if (muted) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* ignore */ }
+    init();
+    if (!ctx) return;
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    if (!navigator.audioSession && !keepAlive) {
+      keepAlive = new Audio(SILENT); keepAlive.loop = true; keepAlive.setAttribute('playsinline', ''); keepAlive.volume = 0.01;
+    }
+    if (keepAlive && keepAlive.paused && !document.hidden) keepAlive.play().catch(() => {});
+    // petit son inaudible joué pendant le geste : débloque définitivement Web Audio sur iOS
+    try { const b = ctx.createBuffer(1, 1, 22050), src = ctx.createBufferSource(); src.buffer = b; src.connect(ctx.destination); src.start(0); } catch { /* ignore */ }
+  }
+  for (const ev of ['touchend', 'click', 'keydown', 'pointerup']) document.addEventListener(ev, unlock, { capture: true, passive: true });
   document.addEventListener('visibilitychange', () => {
     if (!ctx) return;
-    if (document.hidden) { Music.kick(); ctx.suspend(); } else { ctx.resume(); Music.kick(); }
+    if (document.hidden) { Music.kick(); ctx.suspend(); if (keepAlive) keepAlive.pause(); }
+    else { ctx.resume().catch(() => {}); Music.kick(); }
   });
 
   // Bruit continu du tirage : la note monte quand le verre se remplit
@@ -3790,7 +3810,6 @@ function bindUI() {
   $('#btn-tuto').addEventListener('click', () => { Sound.play('tick'); openTuto(null); });
   $('#btn-resume').addEventListener('click', resumeGame);
   $$('.btn-sound').forEach(b => b.addEventListener('click', openAudio));
-  document.addEventListener('pointerdown', () => { if (!Sound.muted) Sound.init(); }, { once: true, capture: true });
   new MutationObserver(muts => { if (muts.some(m => !m.target.closest || !m.target.closest('#screen-game, #lp-body, .lobby-3d'))) scheduleFit(); })
     .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
   if (window.ResizeObserver) { let lpH = 0; new ResizeObserver(() => { const h = $('#lp-body').clientHeight; if (h && h !== lpH && currentScreen === 'lobby' && M.save) { lpH = h; paginateLobby(); } }).observe($('#lp-body')); }
