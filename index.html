@@ -1367,6 +1367,15 @@ b,strong{font-weight:700}
 .deco-top > *{pointer-events:auto}
 #screen-lobby.deco .deco-top{display:flex}
 .dt-left{display:flex;gap:8px;align-items:center}
+/* le Shop devient un bouton flottant en bas à droite (plus de chevauchement en haut) */
+#btn-shop{position:absolute;right:12px;bottom:calc(14px + var(--safe-b));height:58px;padding:0 16px;font-size:1.5rem;border-color:var(--c-orange-d);background:linear-gradient(180deg,#ffd06a,var(--c-orange) 55%,#f38f10);color:#fff;box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 5px 0 var(--c-orange-d),0 8px 16px rgba(0,0,0,.25)}
+#btn-shop span{text-shadow:0 2px 0 var(--c-orange-d)}
+#btn-shop{display:none;z-index:6}
+#screen-lobby.deco #btn-shop{display:inline-flex}
+#screen-lobby.deco #lobby-3d.editing #btn-shop{display:none}
+#screen-lobby.full3d .l3d-badge{top:calc(10px + var(--safe-t))}
+#screen-lobby.full3d .view-toggle{top:calc(10px + var(--safe-t))}
+#screen-lobby.full3d:not(.deco) .view-toggle{bottom:auto}
 #screen-lobby.deco .l3d-badge,#screen-lobby.deco .l3d-full,#screen-lobby.deco .l3d-hint{display:none !important}
 #screen-lobby.deco .view-toggle{top:calc(10px + var(--safe-t));bottom:auto;left:50%;right:auto;transform:translateX(-50%)}
 #screen-lobby.deco .vt-txt{display:none}
@@ -1598,11 +1607,12 @@ b,strong{font-weight:700}
   <div class="lobby-main">
     <div class="lobby-3d" id="lobby-3d">
       <div class="l3d-badge" id="l3d-badge"></div>
-      <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · pince pour zoomer</div>
+      <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · deux doigts / clic droit pour te déplacer · molette ou pince pour zoomer</div>
       <div class="deco-top" id="deco-top">
-        <div class="dt-left"><span class="chip money" id="deco-money">💶 0 €</span><button class="dbtn shop-btn" id="btn-shop" type="button" aria-label="Ouvrir le shop">🛒<span>Shop</span></button></div>
+        <div class="dt-left"><span class="chip money" id="deco-money">💶 0 €</span></div>
         <button class="dbtn" id="btn-deco-exit" type="button" aria-label="Quitter le mode déco" title="Quitter le mode déco">✖</button>
       </div>
+      <button class="dbtn shop-btn" id="btn-shop" type="button" aria-label="Ouvrir le shop">🛒<span>Shop</span></button>
       <div class="shop" id="shop" hidden></div>
       <div class="deco-hint" id="deco-hint" hidden></div>
       <div class="view-toggle" id="view-toggle"><button data-view="out" class="on" type="button">🏞️<span class="vt-txt"> Extérieur</span></button><button data-view="in" type="button">🛋️<span class="vt-txt"> Intérieur</span></button><button class="l3d-full" id="l3d-full" type="button" aria-label="Agrandir la vue" title="Agrandir la vue"></button></div>
@@ -4278,6 +4288,17 @@ function computeGeo(size) {
   for (let r = 0; r < g.TR; r++) for (let c = 0; c < g.C; c++) {
     geo.cells.set(`out:${r}:${c}`, { key: `out:${r}:${c}`, zone: 'out', r, c, x: BAR_XL + (c + 0.5) * CELL, z: (r + 0.5) * CELL, block: c === doorC ? 'passage' : null });
   }
+  // Rooftop : toute la surface du toit s'aménage (avec l'extérieur), sauf le local d'arrivée de l'escalier
+  if (size >= 5) {
+    const roofY = g.H + 0.4;
+    geo.roof = { y: roofY, kx0: BAR_XL, kx1: BAR_XL + 2 * CELL, kz0: -D, kz1: -D + 3 * CELL, doorX: BAR_XL + CELL, doorZ: -D + 3 * CELL };
+    for (let r = 0; r < g.R; r++) for (let c = 0; c < g.C; c++) {
+      let block = null;
+      if (c <= 1 && r >= g.R - 3) block = 'local';                // le local vitré
+      else if (c <= 1 && r === g.R - 4) block = 'passage';        // devant sa porte
+      geo.cells.set(`roof:${r}:${c}`, { key: `roof:${r}:${c}`, zone: 'roof', r, c, x: BAR_XL + (c + 0.5) * CELL, z: -(r + 0.5) * CELL, y: roofY, block });
+    }
+  }
   return geo;
 }
 
@@ -4585,6 +4606,7 @@ const World = (() => {
   }
   function buildBuilding() {
     clearGroup(bldG);
+    roofDoor = null;
     staff.splice(0, staff.length, ...staff.filter(s => !s.bld));
     cutParts = []; ghostParts = []; smokes.length = 0; blinkers.length = 0;
     const { xL, x1, W, D, doorX, counter, T: TT } = geo;
@@ -4647,11 +4669,7 @@ const World = (() => {
       cut(cyl(0.25, 0.25, 1.4, lam(0x7e878e), chx, ch + 0.6 + up.cuisine * 0.3, chz, bldG));
       for (let i = 0; i < 3; i++) { const sp = new T.Sprite(new T.SpriteMaterial({ color: 0xeeeeee, transparent: true, opacity: 0.4, depthWrite: false })); sp.position.set(chx, ch + 2.6, chz); sp.userData = { y0: ch + 2.6, t: i }; bldG.add(cut(sp)); smokes.push(sp); }
     }
-    if (sv.size >= 5) {
-      for (let i = 0; i < 3; i++) { const px = xL + 2 + i * (W - 4) / 2; cut(cyl(0.04, 0.04, 2.2, lam(0x333333), px, H + 0.4, -D / 2, bldG)); const c = solid(new T.Mesh(new T.ConeGeometry(1.2, 0.5, 24), lam(i % 2 ? 0x141414 : 0xd4a017))); c.position.set(px, H + 2.7, -D / 2); bldG.add(cut(c)); }
-      cut(box(W, 0.9, 0.08, lam(0x222222, { transparent: true, opacity: 0.6 }), cx, H + 0.4, -D + 0.3, bldG));
-      const rs = label('ROOFTOP', '#fff3c9', '#141414', 3.6); rs.position.set(cx, H + 3.8, -D / 2); bldG.add(cut(rs));
-    }
+    if (geo.roof) buildRooftop(cut);
     // pergola au-dessus de la grande terrasse
     if (TT >= 4.5) {
       const wood = lam(0x9a6a3a);
@@ -4759,6 +4777,42 @@ const World = (() => {
     marco.position.set(kx - 0.3, 0, z0 - 1.0); marco.userData.work = true; bldG.add(marco);
     staff.push({ obj: marco, fixed: true, bld: true });
   }
+  /** Rooftop : plancher en bois, garde-corps vitré et petit local d'arrivée de l'escalier avec porte coulissante. */
+  let roofDoor = null;
+  function buildRooftop(cut) {
+    const { xL, x1, W, D } = geo, R = geo.roof, y = R.y, cx = xL + W / 2;
+    cut(plane(W, D, lam(0xffffff, { map: T_.planks() }), cx, y + 0.02, -D / 2, bldG));
+    // garde-corps vitré tout autour
+    const glassM = lam(0xbfe3f2, { transparent: true, opacity: 0.35 }), rail = lam(0x2c2f33);
+    for (const [w, d, x, z] of [[W, 0.06, cx, -0.12], [W, 0.06, cx, -D + 0.08], [0.06, D, xL + 0.08, -D / 2], [0.06, D, x1 - 0.08, -D / 2]]) {
+      cut(box(w, 1.0, d, glassM, x, y, z, bldG));
+      cut(box(w + 0.04, 0.06, d + 0.06, rail, x, y + 1.0, z, bldG));
+    }
+    // le local : murs, toit plat, enseigne et porte vitrée coulissante (comme une entrée de magasin)
+    const kw = R.kx1 - R.kx0, kd = R.kz1 - R.kz0, kh = 2.7, kcx = (R.kx0 + R.kx1) / 2, kcz = (R.kz0 + R.kz1) / 2;
+    const wall = lam(0xffffff, { map: T_.cladding() }), frame = lam(0x2c2f33);
+    cut(box(0.2, kh, kd, wall, R.kx0 + 0.1, y, kcz, bldG));
+    cut(box(0.2, kh, kd, wall, R.kx1 - 0.1, y, kcz, bldG));
+    cut(box(kw, kh, 0.2, wall, kcx, y, R.kz0 + 0.1, bldG));
+    const dw = 1.5;   // largeur de la baie de la porte
+    for (const sx of [-1, 1]) cut(box((kw - dw) / 2, kh, 0.2, wall, kcx + sx * (dw / 2 + (kw - dw) / 4), y, R.kz1 - 0.1, bldG));
+    cut(box(dw, kh - 2.2, 0.2, wall, kcx, y + 2.2, R.kz1 - 0.1, bldG));
+    cut(rbox(kw + 0.3, 0.22, kd + 0.3, lam(0x3a3d42), kcx, y + kh, kcz, bldG, 0.05));
+    cut(box(dw + 0.1, 0.08, 0.26, frame, kcx, y + 2.18, R.kz1 - 0.1, bldG));
+    const sign = cut(box(1.6, 0.42, 0.04, basic({ map: textTex('ROOFTOP', { bg: '#141414', fg: '#ffd54a', border: '#ffd54a' }), toneMapped: false }), kcx, y + kh - 0.5, R.kz1 + 0.02, bldG));
+    sign.castShadow = false;
+    const glassD = lam(0xa9d6ef, { transparent: true, opacity: 0.45 });
+    const doorG = new T.Group(); doorG.position.set(kcx, y, R.kz1 - 0.1); bldG.add(cut(doorG));
+    const panels = [-1, 1].map(sx => {
+      const pg = new T.Group(); pg.position.x = sx * dw / 4; doorG.add(pg);
+      box(dw / 2 - 0.02, 2.1, 0.04, glassD, 0, 0.05, 0, pg);
+      for (const fx of [-1, 1]) box(0.05, 2.15, 0.07, frame, fx * (dw / 4 - 0.03), 0.02, 0, pg);
+      box(dw / 2, 0.05, 0.07, frame, 0, 2.12, 0, pg); box(dw / 2, 0.05, 0.07, frame, 0, 0.02, 0, pg);
+      return { pg, sx, x0: sx * dw / 4 };
+    });
+    const lamp = new T.PointLight(0xffd9a0, 0.5, 6); lamp.position.set(kcx, y + 2.2, kcz); bldG.add(cut(lamp));
+    roofDoor = { panels, open: 0, x: R.doorX, z: R.doorZ };
+  }
   /** Rooftop : escalier le long du mur gauche, au fond de la salle. */
   function buildStairs() {
     const st = geo.stair, n = Math.ceil(st.h / 0.24), rise = st.h / n, run = (st.zB - st.zT) / n;
@@ -4837,7 +4891,7 @@ const World = (() => {
     for (const o of cutParts) o.visible = view === 'out';
     for (const o of previewParts) o.visible = previewOn && view === 'out';
     for (const o of ghostParts) ghostly(o, view === 'in');
-    if (itemsG) for (const g of itemsG.children) { g.visible = true; if (g.userData.zone === 'out') ghostly(g, view === 'in'); }
+    if (itemsG) for (const g of itemsG.children) { g.visible = g.userData.zone !== 'roof' || view === 'out'; if (g.userData.zone === 'out') ghostly(g, view === 'in'); }
   }
 
   /* ---------- déco placée ---------- */
@@ -4896,19 +4950,20 @@ const World = (() => {
       if (!cell || !def) return;
       const g = new T.Group();
       MODELS[def.model](g, i);
-      g.position.set(cell.x, 0, cell.z);
+      g.position.set(cell.x, cell.y || 0, cell.z);
       g.rotation.y = (e.rot || 0) * Math.PI / 2;
       g.userData.key = e.key;
       g.userData.zone = cell.zone;
       itemsG.add(g);
       if (cell.zone === 'out' && view === 'in') ghostly(g, true);
+      if (cell.zone === 'roof') g.visible = view === 'out';
       const st = SEAT_SPOTS[def.model];
       if (st) for (const [ox, oz, fwd] of st.spots) {
         const a = g.rotation.y, x = cell.x + ox * Math.cos(a) + oz * Math.sin(a), z = cell.z - ox * Math.sin(a) + oz * Math.cos(a);
         const face = fwd ? a : Math.atan2(cell.x - x, cell.z - z);   // face à la table, ou face au devant (canapé, transats)
         const near = cellNeighbors(cell.key).filter(k => k.split(':')[0] === cell.zone && walkable(k))
           .map(k => geo.cells.get(k)).sort((a, b) => Math.hypot(a.x - x, a.z - z) - Math.hypot(b.x - x, b.z - z))[0];
-        seats.push({ x, z, zone: cell.zone, cell, taken: false, face, sit: st.y > 0, y: st.y, approach: near ? near.key : null });
+        seats.push({ x, z, zone: cell.zone, cell, taken: false, face, sit: st.y > 0, y: st.y + (cell.y || 0), approach: near ? near.key : null });
       }
     });
     if (selKey) highlight(selKey);
@@ -4921,14 +4976,14 @@ const World = (() => {
     if (!editMode) return;
     const zone = view;
     for (const cell of geo.cells.values()) {
-      if (cell.zone !== zone) continue;
+      if (cell.zone !== zone && !(zone === 'out' && cell.zone === 'roof')) continue;
       const occ = sv.layout.some(e => e.key === cell.key);
       let m;
       if (cell.block === 'passage') m = basic({ map: T_.stripes(), transparent: true, opacity: 0.85, depthWrite: false });
       else if (cell.block) m = basic({ color: 0x555555, transparent: true, opacity: 0.45, depthWrite: false });
       else if (occ) m = basic({ color: editMode === 'select' ? 0x5fd0ff : 0x777777, transparent: true, opacity: 0.55, depthWrite: false });
       else m = basic({ color: editMode === 'place' ? 0x3ee08f : 0xffffff, transparent: true, opacity: editMode === 'place' ? 0.5 : 0.15, depthWrite: false });
-      const p = plane(CELL - 0.12, CELL - 0.12, m, cell.x, 0.07, cell.z, gridG);
+      const p = plane(CELL - 0.12, CELL - 0.12, m, cell.x, (cell.y || 0) + 0.07, cell.z, gridG);
       p.userData.key = cell.key;
       p.renderOrder = 2;
     }
@@ -4955,7 +5010,7 @@ const World = (() => {
     const arrow = new T.Mesh(new T.ConeGeometry(0.16, 0.4, 3), basic({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false }));
     arrow.rotation.x = Math.PI / 2; arrow.rotation.z = 0; arrow.position.set(0, 0.12, 0.55); arrow.renderOrder = 5;
     const arrowG = new T.Group(); arrowG.add(arrow); arrowG.rotation.y = (rot || 0) * Math.PI / 2; ghostG.add(arrowG);
-    ghostG.position.set(cell.x, 0, cell.z);
+    ghostG.position.set(cell.x, cell.y || 0, cell.z);
     ghostG.userData.model = model;
     ghostG.userData.locked = !!locked;
     if (locked) { const lk = new T.Sprite(new T.SpriteMaterial({ map: emojiTex('🔒'), transparent: true, depthTest: false })); lk.scale.set(0.6, 0.6, 1); lk.position.set(0.55, 2.2, 0.55); lk.renderOrder = 7; ghostG.add(lk); }
@@ -4979,7 +5034,7 @@ const World = (() => {
     const cell = key && geo.cells.get(key);
     if (!cell) return;
     ring = new T.Mesh(new T.RingGeometry(0.62, 0.78, 32), basic({ color: 0xffd54a, depthWrite: false, transparent: true }));
-    ring.rotation.x = -Math.PI / 2; ring.position.set(cell.x, 0.09, cell.z); ring.renderOrder = 3;
+    ring.rotation.x = -Math.PI / 2; ring.position.set(cell.x, (cell.y || 0) + 0.09, cell.z); ring.renderOrder = 3;
     gridG.add(ring);
   }
 
@@ -5007,7 +5062,7 @@ const World = (() => {
   }
   const insideCount = () => people.filter(w => w.inside).length;
   function freeSeat() {
-    const free = seats.filter(s => !s.taken && s.approach);
+    const free = seats.filter(s => !s.taken && s.approach && s.zone !== 'roof');
     return free.length ? pick(free) : null;
   }
   function callBarman(x) {
@@ -5019,15 +5074,16 @@ const World = (() => {
   /** Parcours d'un client : entrée → comptoir → place → sortie. */
   /* Déplacements sans traverser le mobilier : trajet case par case (parcours en largeur). */
   let occupied = new Set();
-  function cellOf(x, z) {
+  function cellOf(x, z, zone) {
     const c = clamp(Math.floor((x - geo.xL) / CELL), 0, geo.C - 1);
+    if (zone === 'roof') return `roof:${clamp(Math.floor(-z / CELL), 0, geo.R - 1)}:${c}`;
     return z < 0 ? `in:${clamp(Math.floor(-z / CELL), 0, geo.R - 1)}:${c}` : `out:${clamp(Math.floor(z / CELL), 0, geo.TR - 1)}:${c}`;
   }
-  function walkable(key) { const c = geo.cells.get(key); return !!c && c.block !== 'comptoir' && c.block !== 'cuisine' && c.block !== 'escalier' && !occupied.has(key); }
+  function walkable(key) { const c = geo.cells.get(key); return !!c && (!c.block || c.block === 'passage') && !occupied.has(key); }
   function cellNeighbors(key) {
     const c = geo.cells.get(key), out = [];
     for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = `${c.zone}:${c.r + dr}:${c.c + dc}`; if (geo.cells.has(k)) out.push(k); }
-    if (c.r === 0 && c.c === geo.doorC) out.push(`${c.zone === 'in' ? 'out' : 'in'}:0:${geo.doorC}`);   // on ne passe dehors/dedans que par la porte
+    if (c.zone !== 'roof' && c.r === 0 && c.c === geo.doorC) out.push(`${c.zone === 'in' ? 'out' : 'in'}:0:${geo.doorC}`);   // on ne passe dehors/dedans que par la porte
     return out;
   }
   function route(fromKey, toKey, finalPt) {
@@ -5201,15 +5257,39 @@ const World = (() => {
     return true;
   }
   let stairT = 3;
+  /** Sur le toit : sortir du local, s'installer (siège libre ou case au hasard), puis revenir à l'escalier. */
+  function roofVisit(w, done) {
+    const R = geo.roof, st = geo.stair;
+    w.stair = false; w.roof = true; w.obj.position.set(st.x, R.y, st.zT);
+    const doorCell = `roof:${geo.R - 4}:0`;
+    const seat = seats.filter(x => x.zone === 'roof' && !x.taken && x.approach)[0] && pick(seats.filter(x => x.zone === 'roof' && !x.taken && x.approach));
+    let path = seat ? route(doorCell, seat.approach, [seat.x, seat.z]) : null;
+    if (!path) { const free = [...geo.cells.values()].filter(c => c.zone === 'roof' && walkable(c.key) && c.key !== doorCell); const c = free.length && pick(free); path = c ? route(doorCell, c.key) : null; }
+    const inK = [[st.x, R.kz1 - 0.8], [R.doorX, R.kz1 - 0.6], [R.doorX, R.doorZ + 0.7]];
+    if (seat && path) seat.taken = true;
+    go(w, [...inK, ...(path || [])], () => {
+      if (seat && path) { w.obj.rotation.y = seat.face; w.obj.userData.sit = seat.sit; w.obj.userData.sitY = seat.y; }
+      w.chat = true; w.wait = rand(10, 20);
+      w.after = () => {
+        w.chat = false; w.obj.userData.sit = false; if (seat) seat.taken = false;
+        const back = (path && route(cellOf(w.obj.position.x, w.obj.position.z, 'roof'), doorCell)) || [];
+        go(w, [...back, [R.doorX, R.doorZ + 0.7], [R.doorX, R.kz1 - 0.6], [st.x, R.kz1 - 0.8], [st.x, st.zT]], () => {
+          w.roof = false; w.stair = true; w.obj.position.y = st.h;
+          go(w, [[st.x, st.zB]], () => { w.stair = false; w.obj.position.y = 0; done(); });
+        });
+      };
+    });
+  }
   function spawnClimber(up) {
     const st = geo.stair; if (!st) return;
     const w = walker(randPerson(), [], rand(1.1, 1.4), null), dX = geo.doorX;
     const exit = [[dX, -0.7], [dX, 0.9], [dX, PLAZA_Z], [dX, STRIP_Z + 0.5], [pick([-70, 70]), STRIP_Z + 0.5]];
+    const leave = () => { const r = route(st.approach, `in:0:${geo.doorC}`); go(w, [...(r || []), ...exit], () => removeWalker(w)); };
     if (up) {
       w.obj.position.set(dX, 0, PLAZA_Z);
       const r = route(`in:0:${geo.doorC}`, st.approach);
       if (!r) { removeWalker(w); return; }
-      go(w, [[dX, 0.9], ...r, [st.x, st.zB]], () => { w.stair = true; go(w, [[st.x, st.zT]], () => removeWalker(w)); });
+      go(w, [[dX, 0.9], ...r, [st.x, st.zB]], () => { w.stair = true; go(w, [[st.x, st.zT]], () => (geo.roof ? roofVisit(w, leave) : removeWalker(w))); });
     } else {
       w.stair = true; w.obj.position.set(st.x, st.h, st.zT);
       go(w, [[st.x, st.zB]], () => {
@@ -5221,6 +5301,11 @@ const World = (() => {
   }
   function updateLife(dt) {
     pedT -= dt; carT -= dt;
+    if (roofDoor) {
+      const near = people.some(w => w.roof && Math.hypot(w.obj.position.x - roofDoor.x, w.obj.position.z - roofDoor.z) < 1.9);
+      roofDoor.open += ((near ? 1 : 0) - roofDoor.open) * Math.min(1, dt * 5);
+      for (const p of roofDoor.panels) p.pg.position.x = p.x0 + p.sx * roofDoor.open * 0.72;
+    }
     if (geo.stair && (stairT -= dt) <= 0) { stairT = rand(4, 9); if (people.length < 26) spawnClimber(Math.random() < 0.5); }
     if (pedT <= 0) { pedT = rand(2.5, 5); if (people.length < 22) spawnPedestrian(); }
     if (carT <= 0) { carT = rand(2.5, 5.5); if (cars.length < 16) spawnCar(); }
@@ -5236,6 +5321,8 @@ const World = (() => {
       const moving = moveAlong(w, dt);
       animPerson(w.obj, moving, dt);
       if (w.stair && geo.stair) { const st = geo.stair; w.obj.position.y = st.h * clamp((st.zB - w.obj.position.z) / (st.zB - st.zT), 0, 1); }
+      else if (w.roof && geo.roof && !w.obj.userData.sit) w.obj.position.y = geo.roof.y;
+      w.obj.visible = !(w.roof && view === 'in');   // le toit est masqué en vue intérieure
       if (!moving && w.done) { const f = w.done; w.done = null; f(w); }
     }
     for (const c of [...cars]) {
@@ -5273,7 +5360,7 @@ const World = (() => {
   function setGoalsFor(v) {
     const V_ = VIEWS[v];
     goal.az = V_.az; goal.pol = V_.pol; goal.dist = V_.dist * zoomK();
-    const tg = v === 'in' ? [geo.xL + geo.W / 2, 0.8, -geo.D / 2 + 0.5] : [geo.xL + geo.W / 2, 1.5, 4.5];
+    const tg = v === 'in' ? [geo.xL + geo.W / 2, 0.8, -geo.D / 2 + 0.5] : geo.roof ? [geo.xL + geo.W / 2, 3.5, 0] : [geo.xL + geo.W / 2, 1.5, 4.5];
     targetGoal.set(...tg);
   }
   /** Plus le bâtiment est grand, plus la caméra recule. */
@@ -5287,7 +5374,7 @@ const World = (() => {
     el.addEventListener('pointerdown', e => {
       try { el.setPointerCapture(e.pointerId); } catch { /* ignore */ }
       ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (ptrs.size === 1) down = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0 };
+      if (ptrs.size === 1) down = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, pan: e.button === 1 || e.button === 2 || e.shiftKey };
       cam.idle = 0;
       const h = $('#l3d-hint'); if (h) h.style.opacity = '0';
     });
@@ -5301,8 +5388,13 @@ const World = (() => {
       const dx = e.clientX - p.x, dy = e.clientY - p.y;
       p.x = e.clientX; p.y = e.clientY;
       if (down) down.moved += Math.abs(dx) + Math.abs(dy);
-      if (ptrs.size === 1) { goal.az -= dx * 0.006; goal.pol -= dy * 0.004; }
-      else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) goal.dist *= pinch0 / d; pinch0 = d; if (down) down.moved += 99; }
+      if (ptrs.size === 1) { if (down && down.pan) pan(dx, dy); else { goal.az -= dx * 0.006; goal.pol -= dy * 0.004; } }
+      else if (ptrs.size === 2) {
+        const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinch0) goal.dist *= pinch0 / d; pinch0 = d;
+        pan(dx / 2, dy / 2);   // deux doigts : on glisse la vue (et on zoome en pinçant)
+        if (down) down.moved += 99;
+      }
       clampGoal(); cam.idle = 0;
     });
     const up = e => {
@@ -5313,7 +5405,28 @@ const World = (() => {
     };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); down = null; });
+    el.addEventListener('contextmenu', e => e.preventDefault());
+    el.addEventListener('dblclick', () => { if (!editMode) { setGoalsFor(view); clampGoal(); } });
+    window.addEventListener('keydown', e => {
+      if (!running || (e.target.matches && e.target.matches('input'))) return;
+      const k = e.key, step = 40;
+      if (k === 'ArrowLeft' || k === 'q' || k === 'Q') pan(step, 0); else if (k === 'ArrowRight' || k === 'd' || k === 'D') pan(-step, 0);
+      else if (k === 'ArrowUp' || k === 'z' || k === 'Z') pan(0, step); else if (k === 'ArrowDown' || k === 's' || k === 'S') pan(0, -step);
+      else return;
+      e.preventDefault(); cam.idle = 0;
+    });
     el.addEventListener('wheel', e => { e.preventDefault(); goal.dist *= 1 + Math.sign(e.deltaY) * 0.08; clampGoal(); cam.idle = 0; }, { passive: false });
+  }
+  /** Glisser la vue : le décor suit le doigt / la souris, dans les limites de la zone. */
+  function pan(dx, dy) {
+    if (!targetGoal || !renderer) return;
+    const h = renderer.domElement.clientHeight || 600, k = 2 * cam.dist * Math.tan(camera.fov * Math.PI / 360) / h;
+    const sa = Math.sin(cam.az), ca = Math.cos(cam.az);
+    targetGoal.x += (-ca * dx - sa * dy * 1.3) * k;
+    targetGoal.z += (sa * dx - ca * dy * 1.3) * k;
+    const lim = view === 'in' ? { x0: geo.xL, x1: geo.x1, z0: -geo.D, z1: 1 } : { x0: geo.xL - 14, x1: geo.x1 + 14, z0: -geo.D - 8, z1: PLAZA_Z + 16 };
+    targetGoal.x = clamp(targetGoal.x, lim.x0, lim.x1); targetGoal.z = clamp(targetGoal.z, lim.z0, lim.z1);
+    cam.idle = 0;
   }
   const raycaster = T ? new T.Raycaster() : null, ndc = T ? new T.Vector2() : null;
   function tap(e) {
@@ -5511,7 +5624,7 @@ function renderLobby() {
   $('#lb-day').textContent = s.day;
   $('#lb-money').textContent = fmtEUR(s.money);
   $('#lb-money-chip').classList.toggle('neg', s.money < 0);
-  $('#l3d-badge').innerHTML = `<span>🏠 ${sizeDef().name} · niv. ${s.size}/${SIZES.length}</span><span>👥 Équipe ${s.staff.length}/${staffMax()}</span>`;
+  $('#l3d-badge').innerHTML = `<span>🏠 ${sizeDef().name} · niv. ${s.size}/${SIZES.length}</span>`;
   const left = (ANIM_EVERY - (s.day % ANIM_EVERY)) % ANIM_EVERY;
   const ai = $('#anim-info');
   ai.classList.toggle('today', left === 0);
@@ -5684,10 +5797,12 @@ function toggleFull3D(on = !$('#screen-lobby').classList.contains('full3d')) {
 }
 function syncViewButtons() { $$('#view-toggle button').forEach(b => b.classList.toggle('on', b.dataset.view === World.view)); }
 /** Validité d'une case pour un objet (zone, passages, case libre). */
+const decoZoneOf = z => z === 'roof' ? 'out' : z;   // le rooftop s'aménage avec l'extérieur
 function placeCheck(key, id) {
   const cell = computeGeo(M.save.size).cells.get(key), d = DECOR_BY[id];
   if (!cell) return 'Hors de la zone';
-  if (d.zone !== 'both' && d.zone !== cell.zone) return d.zone === 'in' ? 'Cet objet va à l\'intérieur' : 'Cet objet va sur la terrasse';
+  if (d.zone !== 'both' && d.zone !== decoZoneOf(cell.zone)) return d.zone === 'in' ? 'Cet objet va à l\'intérieur' : 'Cet objet va dehors';
+  if (cell.block === 'local') return 'Local de l\'escalier';
   if (cell.block === 'passage') return 'Passage clients : garde-le libre';
   if (cell.block === 'comptoir') return 'Zone du comptoir réservée à l\'équipe';
   if (cell.block === 'escalier') return 'Escalier du rooftop';
@@ -5733,7 +5848,7 @@ function enterDecorMode() {
 function openShop() {
   cancelEdit(true); enterDecorMode();
   const z = M.decorZone, s = M.save, geo = computeGeo(s.size);
-  const free = [...geo.cells.values()].filter(c => c.zone === z && !c.block && !s.layout.some(e => e.key === c.key)).length;
+  const free = [...geo.cells.values()].filter(c => decoZoneOf(c.zone) === z && !c.block && !s.layout.some(e => e.key === c.key)).length;
   const tiles = DECOR.filter(d => d.zone === z || d.zone === 'both').map(d => {
     const owned = s.layout.filter(e => e.id === d.id).length, stock = s.inventory[d.id] || 0;
     return `<button class="dtile" data-shop="${d.id}" type="button" ${!free || (!stock && s.money < d.price) ? 'disabled' : ''} title="${escapeHTML(d.name + ' · ' + fxText(d.fx))}">
@@ -5746,7 +5861,7 @@ function openShop() {
   requestAnimationFrame(() => paginate($('#shop'), [...$$('#shop-grid .dtile')], 'shop-' + z, null));
   Sound.play('tick');
 }
-const boardSegLike = z => `<div class="seg"><button class="${z === 'in' ? 'on' : ''}" data-shop-zone="in" type="button">🛋️ Intérieur</button><button class="${z === 'out' ? 'on' : ''}" data-shop-zone="out" type="button">⛱️ Terrasse</button></div>`;
+const boardSegLike = z => `<div class="seg"><button class="${z === 'in' ? 'on' : ''}" data-shop-zone="in" type="button">🛋️ Intérieur</button><button class="${z === 'out' ? 'on' : ''}" data-shop-zone="out" type="button">⛱️ ${M.save && M.save.size >= 5 ? 'Terrasse & toit' : 'Terrasse'}</button></div>`;
 function closeShop() { const sh = $('#shop'); if (sh) sh.hidden = true; }
 function onShopClick(e) {
   const t = e.target.closest('[data-shop], [data-shop-close], [data-shop-zone]');
@@ -5760,7 +5875,7 @@ function onShopClick(e) {
 function startPlace(id, moving = null) {
   const d = DECOR_BY[id];
   if (!d) return;
-  const zone = moving ? moving.key.split(':')[0] : d.zone === 'both' ? M.decorZone : d.zone;
+  const zone = moving ? decoZoneOf(moving.key.split(':')[0]) : d.zone === 'both' ? M.decorZone : d.zone;
   if (World.view !== zone) { World.setView(zone); M.decorZone = zone; syncViewButtons(); }
   const cells = [...computeGeo(M.save.size).cells.values()].filter(c => c.zone === zone);
   const cx = sum(cells, c => c.x) / cells.length, cz = sum(cells, c => c.z) / cells.length;
