@@ -1374,8 +1374,7 @@ b,strong{font-weight:700}
 #screen-lobby.deco #btn-shop{display:inline-flex}
 #screen-lobby.deco #lobby-3d.editing #btn-shop{display:none}
 #screen-lobby.full3d .l3d-badge{top:calc(10px + var(--safe-t))}
-#screen-lobby.full3d .view-toggle{top:calc(10px + var(--safe-t))}
-#screen-lobby.full3d:not(.deco) .view-toggle{bottom:auto}
+#screen-lobby.full3d:not(.deco) .view-toggle{top:auto !important;bottom:calc(12px + var(--safe-b)) !important;right:12px !important;left:auto !important;transform:none !important}
 #screen-lobby.deco .l3d-badge,#screen-lobby.deco .l3d-full,#screen-lobby.deco .l3d-hint{display:none !important}
 #screen-lobby.deco .view-toggle{top:calc(10px + var(--safe-t));bottom:auto;left:50%;right:auto;transform:translateX(-50%)}
 #screen-lobby.deco .vt-txt{display:none}
@@ -1607,7 +1606,7 @@ b,strong{font-weight:700}
   <div class="lobby-main">
     <div class="lobby-3d" id="lobby-3d">
       <div class="l3d-badge" id="l3d-badge"></div>
-      <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · deux doigts / clic droit pour te déplacer · molette ou pince pour zoomer · ⤢ plein écran pour aménager</div>
+      
       <div class="deco-top" id="deco-top">
         <div class="dt-left"><span class="chip money" id="deco-money">💶 0 €</span></div>
         <button class="dbtn" id="btn-deco-exit" type="button" aria-label="Quitter le mode déco" title="Quitter le mode déco">✖</button>
@@ -5372,6 +5371,7 @@ const World = (() => {
   function bindControls() {
     const el = renderer.domElement;
     el.addEventListener('pointerdown', e => {
+      if (!rotLock) return;   // écran normal du lobby : vitrine animée, on ne touche pas à la caméra
       try { el.setPointerCapture(e.pointerId); } catch { /* ignore */ }
       ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (ptrs.size === 1) down = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, pan: e.button === 1 || e.button === 2 || e.shiftKey };
@@ -5406,16 +5406,16 @@ const World = (() => {
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); down = null; });
     el.addEventListener('contextmenu', e => e.preventDefault());
-    el.addEventListener('dblclick', () => { if (!editMode) { setGoalsFor(view); clampGoal(); } });
+    el.addEventListener('dblclick', () => { if (rotLock && !editMode) { setGoalsFor(view); clampGoal(); } });
     window.addEventListener('keydown', e => {
-      if (!running || (e.target.matches && e.target.matches('input'))) return;
+      if (!running || !rotLock || (e.target.matches && e.target.matches('input'))) return;
       const k = e.key, step = 40;
       if (k === 'ArrowLeft' || k === 'q' || k === 'Q') pan(step, 0); else if (k === 'ArrowRight' || k === 'd' || k === 'D') pan(-step, 0);
       else if (k === 'ArrowUp' || k === 'z' || k === 'Z') pan(0, step); else if (k === 'ArrowDown' || k === 's' || k === 'S') pan(0, -step);
       else return;
       e.preventDefault(); cam.idle = 0;
     });
-    el.addEventListener('wheel', e => { e.preventDefault(); goal.dist *= 1 + Math.sign(e.deltaY) * 0.08; clampGoal(); cam.idle = 0; }, { passive: false });
+    el.addEventListener('wheel', e => { if (!rotLock) return; e.preventDefault(); goal.dist *= 1 + Math.sign(e.deltaY) * 0.08; clampGoal(); cam.idle = 0; }, { passive: false });
   }
   /** En mode déco / plein écran, la caméra ne tourne plus : glisser déplace la vue. */
   let rotLock = false;
@@ -5470,7 +5470,7 @@ const World = (() => {
     if (!running) return;
     const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now; t += dt;
     cam.idle += dt;
-    if (cam.idle > 5 && !editMode && !rotLock && !reducedMotion) goal.az = clamp(goal.az + Math.sin(t * 0.12) * dt * 0.05, VIEWS[view].azR[0], VIEWS[view].azR[1]);
+    if (!rotLock && !reducedMotion) goal.az = clamp(goal.az + Math.sin(t * 0.12) * dt * 0.05, VIEWS[view].azR[0], VIEWS[view].azR[1]);
     const k = Math.min(1, dt * 6);
     cam.az += (goal.az - cam.az) * k; cam.pol += (goal.pol - cam.pol) * k; cam.dist += (goal.dist - cam.dist) * k;
     target.lerp(targetGoal, k);
@@ -5491,7 +5491,11 @@ const World = (() => {
     set onTap(fn) { onCellTap = fn; },
     set onHover(fn) { onCellHover = fn; },
     setGhost(id, key, rot, valid, locked) { if (renderer && !failed) setGhost(id, key, rot, valid, locked); },
-    setRotate(on) { rotLock = !on; cam.idle = 0; },
+    /** true = mode déco / plein écran (on déplace la vue, angle de base) ; false = vitrine animée sans interaction. */
+    setInteractive(on) {
+      rotLock = !!on; cam.idle = 0; ptrs.clear(); down = null; pinch0 = 0;
+      if (renderer && !failed && geo) { setGoalsFor(view); clampGoal(); }
+    },
     setPreview(on) { if (previewOn === !!on) return; previewOn = !!on; if (renderer && !failed && geo) applyCut(); },
     show(save) {
       sv = save;
@@ -5793,7 +5797,7 @@ function setLobbyView(v) {
 /** Vue 3D du bar en plein écran (housing) : un bouton pour entrer, le même (ou Échap) pour sortir. */
 function toggleFull3D(on = !$('#screen-lobby').classList.contains('full3d')) {
   $('#screen-lobby').classList.toggle('full3d', on);
-  World.setRotate(!on);   // la vue ne tourne que sur l'écran normal du lobby
+  World.setInteractive(on);   // plein écran / déco : angle de base, on déplace la vue ; sinon vitrine animée
   const b = $('#l3d-full');
   b.innerHTML = on ? ICO_SHRINK + '<span>Quitter</span>' : ICO_EXPAND;
   b.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Agrandir la vue');
