@@ -1310,6 +1310,31 @@ b,strong{font-weight:700}
 #ov-tuto{z-index:60}
 .k-list > .k-card{min-height:46px !important}
 
+/* Cuisine : deux gros boutons */
+.k-actions{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-content:start}
+.k-big{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:96px;padding:10px 8px;border-radius:20px;cursor:pointer;color:#fff;font:inherit;
+  border:4px solid var(--c-orange-d);background:linear-gradient(180deg,#ffd06a,var(--c-orange) 55%,#f38f10);box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 5px 0 var(--c-orange-d);text-shadow:0 2px 0 var(--c-orange-d)}
+.k-big.take{border-color:var(--c-green-d,#3f7a17);background:linear-gradient(180deg,#a8e36a,var(--c-green,#7cc242) 55%,#62a52c);box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 5px 0 var(--c-green-d,#3f7a17);text-shadow:0 2px 0 var(--c-green-d,#3f7a17)}
+.k-big b{font-family:var(--font-display);font-weight:400;font-size:clamp(1rem,4.2vw,1.35rem);letter-spacing:.04em}
+.k-big small{font-weight:700;font-size:.85rem;min-height:1.2em;text-shadow:none;opacity:.95}
+.k-big .kb-ico{font-size:1.5rem;line-height:1}
+.k-big .kb-count{position:absolute;top:-8px;right:-6px;min-width:28px;height:28px;border-radius:99px;background:var(--c-red,#e8473a);border:3px solid #fff;display:grid;place-items:center;font-family:var(--font-display);font-size:.95rem;text-shadow:none}
+.k-big:disabled{filter:grayscale(.75);opacity:.6;cursor:default}
+.k-big:not(:disabled):active{transform:translateY(3px)}
+.k-big.hot:not(:disabled){animation:kHot 1.2s ease-in-out infinite}
+@keyframes kHot{50%{transform:scale(1.035)}}
+.k-status{grid-column:1 / -1;margin:0;text-align:center;font-weight:700;font-size:.8rem;color:var(--ink-2,#6b4a2a);background:var(--paper,#fff6e6);border-radius:12px;padding:5px 8px}
+/* Résultat du tirage : le cadre du verre s'allume, sans texte */
+.glass-view{transition:box-shadow .15s}
+.glass-view.res-perfect{box-shadow:0 0 0 4px #7cc242,0 0 22px #a8e36a !important}
+.glass-view.res-ok{box-shadow:0 0 0 4px #f7a21b,0 0 18px #ffd06a !important}
+.glass-view.res-bad{box-shadow:0 0 0 4px #e8473a,0 0 18px #ff8a76 !important;animation:kShake .3s}
+@keyframes kShake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.hands-chip button{padding:3px 9px !important;font-size:.8rem !important}
+
+.board-seg{margin-bottom:6px}
+#ov-board .rank-list{margin:0}
+
 /* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
 .screen.scroll{overflow:hidden !important}
 .lp-body{overflow:hidden !important}
@@ -1353,7 +1378,9 @@ b,strong{font-weight:700}
   .taps{min-height:0}
   .tap{padding:8px 1px 3px}
   .tap .tap-glass{width:28px;height:28px}
-  #view-kitchen{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+  #view-kitchen{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .k-actions{height:100%;grid-template-rows:minmax(0,1fr) auto}
+  .k-big{min-height:0}
   .k-panels{height:100%;min-height:0;grid-template-columns:1fr 1fr !important;grid-template-rows:minmax(0,1fr) !important;gap:6px}
   .k-panel{padding:7px !important;gap:5px;max-height:none !important}
   .k-panel h3{flex-direction:column;align-items:stretch;gap:4px;font-size:.78rem}
@@ -1667,16 +1694,10 @@ b,strong{font-weight:700}
         <div class="k-name">👨‍🍳 Marco, ton collègue cuistot</div>
         <div class="k-speed">⚡ Commis en renfort : 2× plus vite !</div>
       </div>
-      <div class="k-panels">
-        <div class="panel k-panel">
-          <h3>📝 Bons à transmettre <button class="k-btn" id="btn-transmit-all" type="button">📣 Tout transmettre <span class="kbd">Entrée</span></button></h3>
-          <div class="k-list" id="k-orders"></div>
-          <div class="k-queue" id="k-queue"></div>
-        </div>
-        <div class="panel k-panel">
-          <h3>🛎️ Au passe <small id="k-hands">🍽️ En main : 0/2</small></h3>
-          <div class="k-list" id="k-pass"></div>
-        </div>
+      <div class="k-actions">
+        <button class="k-big send" id="btn-transmit-all" type="button"><span class="kb-ico">📣</span><b>TRANSMETTRE</b><small id="k-new-info">Aucun bon</small><span class="kb-count" id="k-new-count" hidden></span></button>
+        <button class="k-big take" id="btn-take-all" type="button"><span class="kb-ico">🛎️</span><b>RÉCUPÉRER</b><small id="k-ready-info">Rien au passe</small><span class="kb-count" id="k-ready-count" hidden></span></button>
+        <p class="k-status"><span id="k-queue"></span><span id="k-hands"></span></p>
       </div>
     </section>
 
@@ -1694,7 +1715,7 @@ b,strong{font-weight:700}
     <button class="btn-secondary btn-sound" type="button" aria-label="Réglages du son">🔊 Son</button>
     <button class="btn-secondary" id="btn-tuto" type="button">📖 Revoir le tutoriel</button>
     <button class="btn-secondary" id="btn-close-night" type="button">🚪 Fermer le bar plus tôt</button>
-    <p class="pause-tip"><b>Bar</b> : 1-4 maintenir pour tirer · 5 cocktail · A/Z taille du verre · ←/→ client · E bonus<br><b>Cuisine</b> : Entrée transmettre les bons · 1-3 prendre un plateau<br>Espace bar ⇄ cuisine · P pause · M son</p>
+    <p class="pause-tip"><b>Bar</b> : 1-4 maintenir pour tirer · 5 cocktail · A/Z taille du verre · ←/→ client · E bonus<br><b>Cuisine</b> : Entrée transmettre · R récupérer les plateaux<br>Espace bar ⇄ cuisine · P pause · M son</p>
   </div>
 </div>
 
@@ -1737,6 +1758,15 @@ b,strong{font-weight:700}
     <p class="pause-tip" id="confirm-text"></p>
     <button class="btn-primary" id="confirm-yes" type="button">Oui</button>
     <button class="btn-secondary" id="confirm-no" type="button">Annuler</button>
+  </div>
+</div>
+
+<div class="overlay modal" id="ov-board" role="dialog" aria-modal="true" aria-labelledby="board-title">
+  <div class="modal-box">
+    <h2 id="board-title">🏆 CLASSEMENTS</h2>
+    <div id="board-seg"></div>
+    <div id="board-list" style="text-align:left"></div>
+    <button class="btn-secondary" id="board-close" type="button">Fermer</button>
   </div>
 </div>
 
@@ -1874,7 +1904,7 @@ const COOK = {
 };
 const KX = { fridge: 9, grill: 31, fryer: 49, board: 66, pass: 72, idle: 44 }; // positions dans la cuisine (%)
 const COOK_Y = 93;
-const PASS_MAX = 3, HANDS_MAX = 2;
+const PASS_MAX = 3, HANDS_MAX = 99;   // « Récupérer » prend tout ce qui est prêt
 
 const SPOTS_X = [28, 46, 64, 82];      // places au comptoir (% de largeur)
 const TABLES_X = [22, 42, 62, 84];     // tables du fond
@@ -2730,13 +2760,17 @@ function updatePour(dt) {
   }
 }
 /** Résultat du tirage : affiché au-dessus du bar (le cadre du verre reste sans texte). */
-function showPourResult(text, cls) {
-  floaterAt(sceneEl, text, cls === 'bad' ? 'bad' : 'good');
-  $('#glass-view').classList.add('has-result');
+function showPourResult(text, cls) { flashGlass(cls); $('#glass-view').classList.add('has-result'); }
+/** Retour visuel sans texte : le cadre du verre s'allume (vert parfait, orange bien, rouge raté). */
+function flashGlass(cls) {
+  const g = $('#glass-view');
+  g.classList.remove('res-perfect', 'res-ok', 'res-bad'); void g.offsetWidth;
+  g.classList.add('res-' + (cls === 'perfect' ? 'perfect' : cls === 'bad' ? 'bad' : 'ok'));
+  clearTimeout(flashGlass.t); flashGlass.t = setTimeout(() => g.classList.remove('res-perfect', 'res-ok', 'res-bad'), 650);
 }
 function evaluatePour() {
   const lv = P.level;
-  if (lv < POUR.minLevel) { P.level = 0; renderPour(); floaterAt(sceneEl, 'Maintiens appuyé !', 'small'); return; }
+  if (lv < POUR.minLevel) { P.level = 0; renderPour(); flashGlass('bad'); return; }
   const rate = pourRate(P.size);
   const diff = lv - POUR.target;
   let q;
@@ -2763,7 +2797,6 @@ function deliverGlass(g) {
     S.st.failedPours++; S.st.perfectStreak = 0;
     S.combo = 0;
     addScore(-20);
-    floaterAt(sceneEl, '-20 · verre jeté', 'bad small');
     if (g.quality === 'over') FX.burstAt(view, { count: 16, kind: 'foam', power: 0.6 });
     shout(g.quality === 'over' ? 'TROP DE MOUSSE !' : 'IL EN MANQUE !', 'bad', 1);
     updateHUD();
@@ -2771,7 +2804,7 @@ function deliverGlass(g) {
   }
   const c = getSelected();
   showPourResult(g.quality === 'perfect' ? 'PARFAIT !' : g.drink === 'cocktail' ? 'COCKTAIL !' : 'BIEN !', g.quality === 'perfect' ? 'perfect' : 'ok');
-  if (!c) { floaterAt(sceneEl, 'Personne à servir…', 'bad small'); Sound.play('error'); addScore(-10); updateHUD(); return; }
+  if (!c) { flashGlass('bad'); Sound.play('error'); addScore(-10); updateHUD(); return; }
   const item = c.drinks.find(it => !it.done && it.drink === g.drink && (it.size === g.size || g.drink === 'cocktail'));
   if (!item) {
     // Mauvaise boisson ou mauvaise taille
@@ -2925,6 +2958,13 @@ function transmit(t) {
   if (K.current) cookSay(`Noté ! ${RECIPES[t.recipe].name} juste après.`);
   renderKitchen(); renderBubble(t.cust);
 }
+/** Récupère d'un coup tous les plateaux prêts au passe. */
+function takeAll() {
+  if (!S.running || S.paused) return;
+  const ready = K.trays.filter(t => t.status === 'ready');
+  if (!ready.length) return;
+  ready.forEach(takeTray);
+}
 function transmitAll() {
   const list = K.tickets.filter(t => t.status === 'new');
   if (!list.length) return;
@@ -3028,12 +3068,12 @@ function updateCook(dt) {
 /* --- Récupérer et servir les plateaux --- */
 function takeTray(t) {
   if (!S.running || S.paused || !t || t.status !== 'ready') return;
-  if (K.hands.length >= HANDS_MAX) { floaterAt($('#k-hands'), 'Tes deux mains sont prises !', 'bad small'); Sound.play('error'); return; }
+  if (K.hands.length >= HANDS_MAX) return;
   K.trays.splice(K.trays.indexOf(t), 1);
   t.status = 'carried';
   K.hands.push(t);
   Sound.play('clunk');
-  if (!K.handsHint) { K.handsHint = true; toast('🍽️', 'Plateau en main !', `Retourne au bar et touche ${t.cust.name} pour le servir.`, 'ok'); }
+  if (!K.handsHint) { K.handsHint = true; toast('🍽️', 'Plateaux en main !', 'Retourne au bar et touche le client pour le servir.', 'ok'); }
   if (K.cook.waitSaid) { K.cook.waitSaid = false; cookSay('Merci !'); }
   renderKitchen(); renderBubble(t.cust);
 }
@@ -3075,28 +3115,29 @@ function renderKitchen() {
   $('#k-rail').innerHTML = rail.slice(0, 5).map(t => `<div class="rt${t === K.current ? ' cooking' : ''}"><span class="e">${RECIPES[t.recipe].icon}</span>#${t.id}<br>${t.fries ? '🍟' : ''}${t === K.current ? '<div class="rt-bar"><i></i></div>' : ''}</div>`).join('');
   // Plateaux sur le passe (dans la scène)
   $('#k-trays').innerHTML = K.trays.map(t => `<button class="k-tray" data-t="${t.id}" type="button" aria-label="Prendre le plateau ${tableLabel(t.cust)}"><b>${t.cust.table !== null ? 'T' + (t.cust.table + 1) : 'Cpt'}</b>${RECIPES[t.recipe].icon}${t.fries ? '🍟' : ''}</button>`).join('');
-  // Panneau : bons à transmettre
-  const news = K.tickets.filter(t => t.status === 'new');
-  $('#k-orders').innerHTML = news.length ? news.map(t => `<button class="k-card order" data-t="${t.id}" type="button">
-      <span class="ico">${RECIPES[t.recipe].icon}</span><span class="txt"><b>#${t.id} ${RECIPES[t.recipe].name}${t.fries ? ' + 🍟' : ''}</b><small>${tableLabel(t.cust)} · ${escapeHTML(t.cust.name)}</small></span><span class="go">📣 Passer</span><span class="pb"><i></i></span></button>`).join('')
-    : `<p class="k-empty">${S.foodUnlocked ? 'Aucun bon en attente. 👍' : 'La cuisine ouvre après tes premiers clients…'}</p>`;
+  // Boutons : transmettre / récupérer
+  const news = K.tickets.filter(t => t.status === 'new'), ready = K.trays.filter(t => t.status === 'ready');
+  const sumUp = list => list.map(t => RECIPES[t.recipe].icon + (t.fries ? '🍟' : '')).join(' ');
+  $('#k-new-info').textContent = news.length ? sumUp(news) : (S.foodUnlocked ? 'Aucun bon' : 'Cuisine fermée');
+  $('#k-ready-info').textContent = ready.length ? sumUp(ready) : 'Rien au passe';
+  for (const [id, n] of [['#k-new-count', news.length], ['#k-ready-count', ready.length]]) { const el = $(id); el.hidden = !n; el.textContent = n; }
   $('#btn-transmit-all').disabled = !news.length;
+  $('#btn-take-all').disabled = !ready.length;
+  $('#btn-transmit-all').classList.toggle('hot', news.length > 0);
+  $('#btn-take-all').classList.toggle('hot', ready.length > 0);
   const q = [K.current, ...K.queue].filter(Boolean);
-  $('#k-queue').textContent = q.length ? `👨‍🍳 Marco : ${q.map((t, i) => `#${t.id}${i === 0 && t === K.current ? ' (en cours)' : ''}`).join(' · ')}` : '👨‍🍳 Marco attend tes bons.';
+  $('#k-queue').textContent = q.length ? `👨‍🍳 Marco prépare ${q.length} plat${q.length > 1 ? 's' : ''}` : '👨‍🍳 Marco attend tes bons';
   // Panneau : passe + mains
-  $('#k-pass').innerHTML = K.trays.length ? K.trays.map((t, i) => `<button class="k-card tray" data-t="${t.id}" type="button">
-      <span class="ico">🍽️</span><span class="txt"><b>${tableLabel(t.cust)} · ${escapeHTML(t.cust.name)}</b><small>${RECIPES[t.recipe].name}${t.fries ? ' + frites' : ''}</small></span><span class="go">✋ Prendre <span class="kbd">${i + 1}</span></span><span class="pb"><i></i></span></button>`).join('')
-    : `<p class="k-empty">Rien au passe pour l'instant.</p>`;
-  $('#k-hands').textContent = `🍽️ En main : ${K.hands.length}/${HANDS_MAX}`;
+  $('#k-hands').textContent = K.hands.length ? ` · 🍽️ ${K.hands.length} en main : touche le client au bar` : '';
   // Plateaux en main, visibles au bar
   const chip = $('#hands-chip');
   chip.hidden = !K.hands.length;
-  chip.innerHTML = K.hands.map(t => `<button type="button" data-t="${t.id}">🍽️ Servir ${RECIPES[t.recipe].name} → ${tableLabel(t.cust)} (${escapeHTML(t.cust.name)})</button>`).join('');
+  chip.innerHTML = K.hands.map(t => `<button type="button" data-t="${t.id}" aria-label="Servir ${RECIPES[t.recipe].name} à ${escapeHTML(t.cust.name)}">${RECIPES[t.recipe].icon} ${t.cust.table !== null ? 'T' + (t.cust.table + 1) : 'Cpt'}</button>`).join('');
   for (const c of S.customers) c.el.classList.toggle('deliver', K.hands.some(t => t.cust === c));
   updateKitchenBars();
 }
 function updateKitchenBars() {
-  for (const el of $$('#k-orders .k-card, #k-pass .k-card')) {
+  for (const el of $$('.k-card')) {
     const t = K.tickets.find(x => x.id === +el.dataset.t);
     if (!t) continue;
     const c = t.cust;
@@ -3536,6 +3577,32 @@ function frame(now) {
    14. ÉCRANS, PAUSE, FIN DE PARTIE
    --------------------------------------------------------- */
 let currentScreen = 'title';
+/* ---------- Classements en ligne : bars (mode gestion) et arcade ---------- */
+const BOARDS = { bars: '🍻 Bars', arcade: '🕹️ Arcade' };
+function boardSeg(cur, act) { return `<div class="seg board-seg">${Object.entries(BOARDS).map(([k, v]) => `<button class="${k === cur ? 'on' : ''}" data-act="${act}" data-id="${k}" type="button">${v}</button>`).join('')}</div>`; }
+/** Remplit `el` avec le classement demandé ; `done` est appelé une fois la liste affichée. */
+function fillBoard(el, kind, done) {
+  if (!Cloud.on) { el.innerHTML = '<p class="lp-note">🌍 Classement disponible dans le jeu en ligne (pas en partie de test).</p>'; if (done) done(); return; }
+  el.innerHTML = '<p class="lp-note">Chargement du classement…</p>';
+  const myBar = M.save && M.save.playerId, myArc = arcadeData().id;
+  (kind === 'arcade' ? Cloud.topArcade() : Cloud.top()).then(rows => {
+    if (!el.isConnected) return;
+    if (!rows) el.innerHTML = '<p class="lp-note">Classement indisponible (hors ligne ?).</p>';
+    else if (!rows.length) el.innerHTML = `<p class="lp-note">${kind === 'arcade' ? 'Aucune partie arcade pour l\'instant : sois le premier !' : 'Aucun bar classé pour l\'instant.'}</p>`;
+    else el.innerHTML = `<ol class="rank-list">${rows.map((r, i) => kind === 'arcade'
+      ? `<li class="${r.player_id === myArc ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>${escapeHTML(r.pseudo)}</b><small>${new Date(r.created_at).toLocaleDateString('fr-FR')}</small></span><span class="v">${fmtNum(r.score)} pts</span></li>`
+      : `<li class="${r.player_id === myBar ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>My Beers ${escapeHTML(r.city)}</b><small>${escapeHTML(r.pseudo)} · jour ${r.day}</small></span><span class="v">${fmtEUR(r.total_ca)}</span></li>`).join('')}</ol>`;
+    if (done) done();
+  });
+}
+let boardKind = 'bars';
+function openBoards(kind) {
+  boardKind = kind || boardKind;
+  $('#board-seg').innerHTML = boardSeg(boardKind, 'board');
+  $('#ov-board').classList.add('show');
+  fillBoard($('#board-list'), boardKind, () => requestAnimationFrame(() => paginate($('#ov-board .modal-box'), [...$$('#board-list li')], 'board-' + boardKind, null)));
+}
+
 /* ---------- Tout tient sur un écran : pages pour les listes, léger zoom arrière pour le reste ---------- */
 const PAGES = {};
 /** Répartit `units` en pages qui tiennent dans `box` (sans scroll) et ajoute ◀ 1/3 ▶. */
@@ -3597,7 +3664,7 @@ function fitScreens() {
       inner.style.zoom = Math.max(0.5, (+inner.style.zoom || 1) * avail / need).toFixed(3);
     }
   }
-  for (const box of $$(".overlay.show .modal-box:not(#ov-ach .modal-box)")) {
+  for (const box of $$(".overlay.show .modal-box:not(#ov-ach .modal-box):not(#ov-board .modal-box)")) {
     // hauteur naturelle de la fenêtre comparée à la place dans l'écran
     box.style.zoom = ''; box.style.maxHeight = 'none';
     const ov = box.closest('.overlay'), cs = getComputedStyle(ov);
@@ -3716,6 +3783,9 @@ function bindUI() {
   $('#btn-close-night').addEventListener('click', closeEarly);
   $('#btn-pause').addEventListener('click', pauseGame);
   $('#tuto-next').addEventListener('click', () => { Sound.play('tick'); if (tutoI < TUTO.length - 1) { tutoI++; renderTuto(); } else closeTuto(); });
+  $('#board-seg').addEventListener('click', e => { const b = e.target.closest('[data-act="board"]'); if (b) { Sound.play('tick'); openBoards(b.dataset.id); } });
+  $('#board-close').addEventListener('click', () => $('#ov-board').classList.remove('show'));
+  $('#ov-board').addEventListener('click', e => { if (e.target.id === 'ov-board') $('#ov-board').classList.remove('show'); });
   $('#tuto-skip').addEventListener('click', () => { Sound.play('tick'); closeTuto(); });
   $('#btn-tuto').addEventListener('click', () => { Sound.play('tick'); openTuto(null); });
   $('#btn-resume').addEventListener('click', resumeGame);
@@ -3771,8 +3841,7 @@ function bindUI() {
   bindPress($('#btn-transmit-all'), transmitAll);
   $('#hands-chip').addEventListener('pointerdown', e => { const b = e.target.closest('button'); if (!b || !S.running || S.paused) return; e.preventDefault(); e.stopPropagation(); const t = K.hands.find(x => x.id === +b.dataset.t); if (t) deliverTray(t.cust); });
   const byId = id => K.tickets.find(x => x.id === +id);
-  $('#k-orders').addEventListener('pointerdown', e => { const el = e.target.closest('.k-card'); if (el) { e.preventDefault(); transmit(byId(el.dataset.t)); } });
-  $('#k-pass').addEventListener('pointerdown', e => { const el = e.target.closest('.k-card'); if (el) { e.preventDefault(); takeTray(byId(el.dataset.t)); } });
+  bindPress($('#btn-take-all'), takeAll);
   $('#k-trays').addEventListener('pointerdown', e => { const el = e.target.closest('.k-tray'); if (el) { e.preventDefault(); takeTray(byId(el.dataset.t)); } });
 
   // Fin de tirage même si le doigt quitte la tireuse
@@ -3800,7 +3869,7 @@ function bindUI() {
     } else {
       if (e.repeat) return;
       if (k === 'enter') { e.preventDefault(); transmitAll(); }
-      else if (/^[1-3]$/.test(k)) takeTray(K.trays[+k - 1]);
+      else if (k === 'r' || /^[1-3]$/.test(k)) takeAll();
     }
   });
   document.addEventListener('keyup', e => {
@@ -3965,8 +4034,14 @@ const Cloud = {
       day: sv.day, size_level: sv.size, staff_count: sv.staff.length, updated_at: new Date().toISOString() }, 'player_id');
   },
   pushArcade(player, name, score, ca) { this.post('arcade_scores', { player_id: player, pseudo: name, score: Math.round(score), ca: Math.round(ca) }); },
-  top() { return this.get('bars?select=player_id,pseudo,city,total_ca,best_night,day&order=total_ca.desc&limit=50'); },
-  topArcade() { return this.get('arcade_scores?select=player_id,pseudo,score,ca,created_at&order=score.desc&limit=10'); },
+  top() { return this.get('bars?select=player_id,pseudo,city,total_ca,best_night,day&order=total_ca.desc&limit=30'); },
+  /** Meilleur score de chaque joueur (une ligne par joueur). */
+  async topArcade() {
+    const rows = await this.get('arcade_scores?select=player_id,pseudo,score,ca,created_at&order=score.desc&limit=300');
+    if (!rows) return null;
+    const seen = new Set();
+    return rows.filter(r => !seen.has(r.player_id) && seen.add(r.player_id)).slice(0, 30);
+  },
 };
 
 /** Compte « pseudo + mot de passe de partie » : la sauvegarde (bar + arcade) est copiée en ligne
@@ -5256,6 +5331,7 @@ function renderTitle() {
     ? `<button class="btn-primary pulse" data-act="continue" type="button">▶ MON BAR</button>
        <div class="title-save">${escapeHTML(barName())} · jour ${s.day} · ${fmtEUR(s.money)} en caisse</div>`
     : `<button class="btn-primary pulse" data-act="new" type="button">${BEER} OUVRIR MON BAR</button>`)
+    + `<button class="btn-secondary" data-act="boards" type="button">🏆 CLASSEMENTS</button>`
     + `<button class="btn-secondary title-arcade" data-act="arcade" type="button">🕹️ MODE ARCADE<small>Le service pur, sans amélioration : qui est le meilleur ?${best ? ` · ton record : ${fmtNum(best.score)} pts` : ''}</small></button>`
     + (s ? `<button class="btn-link" data-act="new" type="button">Nouvelle partie (efface ton bar)</button>` : '')
     + (se ? `<div class="title-save">Connecté : <b>${escapeHTML(se.pseudo)}</b> · partie sauvegardée en ligne</div><button class="btn-link" data-act="logout" type="button">Changer de joueur</button>` : '');
@@ -5420,22 +5496,16 @@ function renderPanelBody() {
   } else {
     const avgNet = s.history.length ? sum(s.history, h => h.net) / s.history.length : 0;
     const last7 = s.history.slice(-7), maxCA = Math.max(1, ...last7.map(h => h.ca));
-    let html = `<div class="lp-section"><h4>Ton bar en chiffres</h4><div class="kpis">
+    let html = `<div class="lp-section"><h4>🏆 Classements</h4>${boardSeg(M.board || 'bars', 'lboard')}<div id="rank-box"></div></div>`;
+    html += `<div class="lp-section"><h4>Ton bar en chiffres</h4><div class="kpis">
       <div class="kpi"><b>${fmtEUR(s.totalCA)}</b><span>CA cumulé</span></div><div class="kpi"><b>${fmtEUR(s.bestNight)}</b><span>Meilleure soirée</span></div>
       <div class="kpi"><b>${s.nights}</b><span>Soirées</span></div><div class="kpi"><b>${fmtEUR(Math.round(avgNet))}</b><span>Bénéfice moyen</span></div></div></div>`;
     if (last7.length) html += `<div class="lp-section"><h4>Tes 7 dernières soirées</h4><div class="histo">${last7.map(h => `<div style="height:${Math.max(4, h.ca / maxCA * 100)}%"><span>${Math.round(h.ca)}</span></div>`).join('')}</div><div class="histo-days">${last7.map(h => `<span>J${h.day}</span>`).join('')}</div></div>`;
-    html += `<div class="lp-section"><h4>Classement des bars <small>par CA cumulé</small></h4><div id="rank-box">${Cloud.on ? '<p class="lp-note">Chargement…</p>'
-      : `<div class="cloud-off">🌍 Le classement entre collègues arrive bientôt en ligne.<br>Ton <b>CA cumulé (${fmtEUR(s.totalCA)})</b> y sera comparé à celui de tous les My Beers.</div>`}</div></div>`;
     html += `<div class="lp-section" style="display:grid;gap:8px"><button class="btn-secondary" data-act="ach" type="button">🎖️ Mes succès (${ACHIEVEMENTS.filter(a => unlocked.has(a.id)).length}/${ACHIEVEMENTS.length})</button>
       <button class="btn-secondary" data-act="title" type="button">🏠 Écran titre (mode Arcade)</button>
       <button class="btn-link" data-act="reset" type="button">Recommencer à zéro</button></div>`;
     body.innerHTML = html;
-    if (Cloud.on) Cloud.top().then(rows => {
-      const box = $('#rank-box'); if (!box) return;
-      setTimeout(paginateLobby, 0);
-      if (!rows) { box.innerHTML = '<p class="lp-note">Classement indisponible (hors ligne ?).</p>'; return; }
-      box.innerHTML = rows.length ? `<ol class="rank-list">${rows.map((r, i) => `<li class="${r.player_id === s.playerId ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>My Beers ${escapeHTML(r.city)}</b><small>${escapeHTML(r.pseudo)} · jour ${r.day}</small></span><span class="v">${fmtEUR(r.total_ca)}</span></li>`).join('')}</ol>` : '<p class="lp-note">Sois le premier du classement !</p>';
-    });
+    fillBoard($('#rank-box'), M.board || 'bars', () => setTimeout(paginateLobby, 0));
   }
 }
 function spend(cost) {
@@ -5471,6 +5541,7 @@ function lobbyAction(act, id) {
     toast(u.icon, `${u.name} niveau ${lvl + 1} !`, u.effect(lvl + 1), 'ok');
     World.rebuild(s);
   } else if (act === 'zone') { M.decorZone = id; setLobbyView(id); }
+  else if (act === 'lboard') { M.board = id; PAGES['lobby-rank'] = 0; }
   else if (act === 'place') { startPlace(id); return; }
   else if (act === 'hire') {
     const i = s.candidates.findIndex(c => c.id === id);
@@ -5657,7 +5728,7 @@ function beginNight() {
 const TUTO = [
   { ico: '🙋', t: 'Les clients arrivent au comptoir', d: 'Leur commande s\'affiche dans leur bulle et dans le cadre <b>Commande</b>. Touche un client pour le servir en premier (ou <b>← / →</b> au clavier).' },
   { ico: BEER, t: 'Tire la bonne bière', d: 'Choisis le verre (<b>25 ou 50 cl</b>), puis <b>maintiens</b> la tireuse de la bière demandée. <b>Relâche quand le niveau atteint le trait</b> : dans la zone verte, c\'est PARFAIT. Le verre part au client sélectionné.' },
-  { ico: '🍔', t: 'La cuisine', d: 'Quand quelqu\'un commande à manger, va dans l\'onglet <b>Cuisine</b> : <b>transmets les bons</b> à Marco, récupère les <b>plateaux au passe</b> (2 en main maximum), puis reviens au bar et <b>touche le client</b> pour le servir.' },
+  { ico: '🍔', t: 'La cuisine', d: 'Quand quelqu\'un commande à manger, va dans l\'onglet <b>Cuisine</b> : <b><b>Transmettre</b> envoie tous les bons à Marco, <b>Récupérer</b> prend tous les plateaux prêts. Reviens au bar et <b>touche le client</b> pour le servir.' },
   { ico: '❤️', t: 'Ne fais pas trop attendre', d: 'Un client qui perd patience s\'en va et tu perds une <b>vie</b>. Enchaîne les services pour faire des <b>combos</b> : plus ton score est haut, plus les pourboires sont gros.' },
   { ico: '🌙', t: 'De 18 h à 2 h', d: 'À la fermeture, tes ventes deviennent le <b>chiffre d\'affaires</b> de ta soirée. Tu le réinvestis ensuite dans ton bar. Bon service !' },
 ];
@@ -5756,7 +5827,7 @@ function setWheelMood(v) {
   const s = M.save, worked = s.size > 1 || sum(Object.values(s.upgrades)) > 0 || s.layout.length > STARTER_LAYOUT().length;
   const angry = w.mood < 0;
   const acts = [
-    { id: 'drink', icon: BEER, name: 'Lui offrir une pinte', desc: 'Il retrouve le sourire', cost: 20, ok: true },
+    { id: 'drink', icon: '🥤', name: 'Lui offrir un soda bien frais', desc: 'Il retrouve le sourire', cost: 5, ok: true },
     { id: 'visit', icon: '🧹', name: 'Lui faire visiter ton bar', desc: worked ? 'Il adore les bars qui évoluent' : 'Fais d\'abord des travaux ou de la déco', cost: 0, ok: worked },
     { id: 'figures', icon: '📊', name: 'Lui montrer tes chiffres', desc: s.lastCA >= 1200 ? `Dernière soirée : ${fmtEUR(s.lastCA)}` : `Il faut une soirée ≥ ${fmtEUR(1200)} de CA`, cost: 0, ok: s.lastCA >= 1200 },
     { id: 'respin', icon: '🎡', name: 'Relancer la roulette', desc: 'Nouveau tirage (une seule fois)', cost: 80, ok: true },
@@ -5775,7 +5846,7 @@ function wheelAction(id, cost) {
   w.used[id] = true;
   persist();
   if (id === 'respin') { $('#wheel-spin').hidden = false; spinWheel(); return; }
-  const lines = { drink: 'Merci pour la pinte !', visit: 'Ah, ça a bien changé ici ! 👀', figures: 'Joli chiffre, bravo ! 📈' };
+  const lines = { drink: 'Ah, un soda bien frais, merci ! 🥤', visit: 'Ah, ça a bien changé ici ! 👀', figures: 'Joli chiffre, bravo ! 📈' };
   toast('🧑‍💼', `${ANIMATOR.name} : « ${lines[id]} »`, 'Il est maintenant content !', 'ok');
   setWheelMood(1);
 }
@@ -6088,7 +6159,7 @@ function showArcadeResult(reason) {
   $('#ar-global').innerHTML = Cloud.on ? '<p class="lp-note">Chargement du classement général…</p>' : '';
   if (Cloud.on) Cloud.topArcade().then(rows => {
     if (!rows) { $('#ar-global').innerHTML = '<p class="lp-note">Classement général indisponible.</p>'; return; }
-    $('#ar-global').innerHTML = `<h4 class="ar-h">🌍 Classement général</h4><ol class="rank-list">${rows.map((r, i) => `<li class="${r.player_id === a.id ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>${escapeHTML(r.pseudo)}</b><small>${new Date(r.created_at).toLocaleDateString('fr-FR')}</small></span><span class="v">${fmtNum(r.score)}</span></li>`).join('')}</ol>`;
+    $('#ar-global').innerHTML = `<h4 class="ar-h">🌍 Classement général</h4><ol class="rank-list">${rows.slice(0, 10).map((r, i) => `<li class="${r.player_id === a.id ? 'me' : ''}"><span class="r">${i + 1}</span><span class="n"><b>${escapeHTML(r.pseudo)}</b><small>${new Date(r.created_at).toLocaleDateString('fr-FR')}</small></span><span class="v">${fmtNum(r.score)}</span></li>`).join('')}</ol>`;
   });
   showScreen('arcade');
   countUpEUR($('#ar-score'), entry.score, true);
@@ -6116,6 +6187,7 @@ function bindMeta() {
     }
     if (b.dataset.act === 'continue') { Sound.play('tick'); enterLobby(); }
     else if (b.dataset.act === 'arcade') { Sound.play('tick'); openArcade(); }
+    else if (b.dataset.act === 'boards') { Sound.play('tick'); openBoards(); }
     else if (b.dataset.act === 'new') {
       if (M.save) confirmBox('Nouvelle partie ?', `${barName()} et toute ta progression seront effacés (tes scores arcade sont conservés).`, 'Oui, recommencer', () => { clearSave(); openOnboard(); });
       else openOnboard();
