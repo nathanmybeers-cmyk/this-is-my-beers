@@ -1362,6 +1362,47 @@ b,strong{font-weight:700}
   .status .anim-chip,.status .event-chip{padding:4px 8px}
 }
 
+/* ===== Mode déco (plein écran) ===== */
+.deco-top{display:none;position:absolute;top:calc(10px + var(--safe-t));left:10px;right:10px;z-index:6;justify-content:space-between;align-items:center;pointer-events:none}
+.deco-top > *{pointer-events:auto}
+#screen-lobby.deco .deco-top{display:flex}
+.dt-left{display:flex;gap:8px;align-items:center}
+#screen-lobby.deco .l3d-badge,#screen-lobby.deco .l3d-full,#screen-lobby.deco .l3d-hint{display:none !important}
+#screen-lobby.deco .view-toggle{top:calc(10px + var(--safe-t));bottom:auto;left:50%;right:auto;transform:translateX(-50%)}
+#screen-lobby.deco .vt-txt{display:none}
+@media (min-width:700px){#screen-lobby.deco .vt-txt{display:inline}}
+.dbtn{position:relative;min-width:50px;height:50px;padding:0 10px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:1.35rem;cursor:pointer;
+  border:3px solid var(--tan);background:linear-gradient(180deg,#fffaf0,var(--paper));color:var(--ink);box-shadow:0 4px 0 var(--paper-3),0 6px 12px rgba(0,0,0,.18)}
+.dbtn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--paper-3)}
+.dbtn:disabled{opacity:.45;cursor:default}
+.dbtn.on{border-color:var(--c-orange,#f7a21b);background:linear-gradient(180deg,#ffe6a8,#ffd06a)}
+.dbtn.ok{border-color:var(--c-green-d,#3f7a17);background:linear-gradient(180deg,#c6f08f,var(--c-green,#7cc242));color:#fff}
+.dbtn.no{border-color:#c94a3a;background:linear-gradient(180deg,#ffd2c8,#ffb3a3)}
+.dbtn.sell{border-color:#d4a017;background:linear-gradient(180deg,#fff3c4,#ffd96a)}
+.dbtn .d-price{font-family:var(--font-display);font-size:1rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.dbtn.sell .d-price{color:var(--ink);text-shadow:none}
+.shop-btn span{font-family:var(--font-display);font-size:1rem}
+#deco-money{font-weight:800}
+/* barre de placement et barre d'objet : petites, en bas au centre */
+#lobby-3d .edit-bar,#lobby-3d .item-pop{position:absolute !important;left:50% !important;right:auto !important;top:auto !important;bottom:calc(14px + var(--safe-b)) !important;transform:translateX(-50%);width:auto !important;
+  display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:8px !important;border-radius:22px !important;z-index:6;max-width:calc(100% - 20px)}
+#lobby-3d .edit-bar[hidden],#lobby-3d .item-pop[hidden]{display:none !important}
+.dt-warn,.dt-name{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;padding:5px 12px;border-radius:99px;font-weight:800;font-size:.82rem;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.dt-warn{background:#ffe3dc;color:#8a2414;border:2px solid #f3a493}
+.dt-name{background:var(--paper);color:var(--ink);border:2px solid var(--tan);font-family:var(--font-display);font-weight:400}
+.deco-hint{position:absolute;left:50%;top:calc(70px + var(--safe-t));transform:translateX(-50%);z-index:6;background:rgba(42,21,10,.82);color:#fff4df;font-weight:700;font-size:.85rem;padding:6px 14px;border-radius:99px;white-space:nowrap;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.deco-hint[hidden]{display:none}
+/* shop */
+.shop{position:absolute;left:0;right:0;bottom:0;z-index:7;max-height:min(70%,560px);display:flex;flex-direction:column;gap:8px;overflow:hidden;
+  padding:12px 12px calc(12px + var(--safe-b));border-radius:24px 24px 0 0;background:linear-gradient(180deg,#fff6e6,var(--paper));border-top:4px solid var(--brick);box-shadow:0 -10px 30px rgba(0,0,0,.3)}
+.shop[hidden]{display:none}
+.shop-head{display:flex;align-items:center;gap:10px}
+.shop-head .seg{flex:1}
+.shop-free{font-weight:800;font-size:.8rem;color:var(--ink-2);white-space:nowrap}
+.shop-head .dbtn{min-width:40px;height:40px;font-size:1rem}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+@media (min-width:900px){.shop{left:auto;right:12px;bottom:12px;width:440px;border-radius:24px;border:4px solid var(--brick);max-height:calc(100% - 90px)}}
+
 /* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
 .screen.scroll{overflow:hidden !important}
 .lp-body{overflow:hidden !important}
@@ -1558,7 +1599,13 @@ b,strong{font-weight:700}
     <div class="lobby-3d" id="lobby-3d">
       <div class="l3d-badge" id="l3d-badge"></div>
       <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · pince pour zoomer</div>
-      <div class="view-toggle" id="view-toggle"><button data-view="out" class="on" type="button">🏞️ Extérieur</button><button data-view="in" type="button">🛋️ Intérieur</button><button class="l3d-full" id="l3d-full" type="button" aria-label="Agrandir la vue" title="Agrandir la vue"></button></div>
+      <div class="deco-top" id="deco-top">
+        <div class="dt-left"><span class="chip money" id="deco-money">💶 0 €</span><button class="dbtn shop-btn" id="btn-shop" type="button" aria-label="Ouvrir le shop">🛒<span>Shop</span></button></div>
+        <button class="dbtn" id="btn-deco-exit" type="button" aria-label="Quitter le mode déco" title="Quitter le mode déco">✖</button>
+      </div>
+      <div class="shop" id="shop" hidden></div>
+      <div class="deco-hint" id="deco-hint" hidden></div>
+      <div class="view-toggle" id="view-toggle"><button data-view="out" class="on" type="button">🏞️<span class="vt-txt"> Extérieur</span></button><button data-view="in" type="button">🛋️<span class="vt-txt"> Intérieur</span></button><button class="l3d-full" id="l3d-full" type="button" aria-label="Agrandir la vue" title="Agrandir la vue"></button></div>
       <div class="edit-bar" id="edit-bar" hidden></div>
       <div class="item-pop" id="item-pop" hidden></div>
     </div>
@@ -5454,7 +5501,8 @@ function enterLobby() {
   renderLobby();
   World.show(M.save);
   syncViewButtons();
-  if (M.tab === 'decor') enterDecorMode();
+  if (M.tab === 'decor') M.tab = 'works';
+  $('#screen-lobby').classList.remove('deco'); closeShop(); toggleFull3D(false);
   if (isAnimDay()) toast('🎡', `${ANIMATOR.name}, l'animateur réseau, passe ce soir !`, 'Tu tourneras la roulette avant d\'ouvrir.', 'info');
 }
 function renderLobby() {
@@ -5624,6 +5672,7 @@ function setLobbyView(v) {
   syncViewButtons();
   if (M.edit && M.edit.mode === 'place') { const z = DECOR_BY[M.edit.item].zone; if (z !== 'both' && z !== v) { abortPlace(); enterDecorMode(); } else { const c = [...computeGeo(M.save.size).cells.values()].find(c => c.zone === v && !placeCheck(c.key, M.edit.item)); if (c) { M.edit.key = c.key; refreshPlace(); } } }
   if (M.tab === 'decor') renderPanel();
+  if (!$('#shop').hidden) openShop();
 }
 /** Vue 3D du bar en plein écran (housing) : un bouton pour entrer, le même (ou Échap) pour sortir. */
 function toggleFull3D(on = !$('#screen-lobby').classList.contains('full3d')) {
@@ -5646,12 +5695,66 @@ function placeCheck(key, id) {
   if (M.save.layout.some(e => e.key === key)) return 'Case déjà occupée';
   return '';
 }
+/* ---------- Mode déco : magasin en plein écran, shop, barre d'icônes ---------- */
+const HOVER = () => matchMedia('(hover: hover) and (pointer: fine)').matches;
+function enterDeco() {
+  M.tab = 'decor';
+  $('#screen-lobby').classList.add('deco');
+  toggleFull3D(true);
+  setLobbyView(World.view);
+  enterDecorMode();
+  decoHint('✋ Touche un objet pour le modifier · 🛒 pour en acheter');
+}
+function leaveDeco() {
+  cancelEdit(true);
+  closeShop();
+  $('#screen-lobby').classList.remove('deco');
+  toggleFull3D(false);
+  M.tab = 'works';
+  renderLobby();
+  Sound.play('tick');
+}
+let hintT = 0;
+function decoHint(text, ms = 3200) {
+  const h = $('#deco-hint'); h.innerHTML = text; h.hidden = false;
+  clearTimeout(hintT); hintT = setTimeout(() => { h.hidden = true; }, ms);
+}
+function updateDecoMoney() { const el = $('#deco-money'); if (el && M.save) el.textContent = '💶 ' + fmtEUR(M.save.money); }
 /** Mode Déco par défaut : toucher un objet le sélectionne. */
 function enterDecorMode() {
   M.edit = { mode: 'select', sel: null };
   World.setEdit('select');
+  World.highlight(null);
   $('#item-pop').hidden = true;
-  showEditBar('✋ Touche un objet pour le <b>déplacer</b>, le <b>tourner</b> ou le <b>ranger</b> · ou choisis un objet dans le catalogue', false);
+  $('#edit-bar').hidden = true;
+  updateDecoMoney();
+}
+/* Shop : catalogue de la zone visible ; toucher un objet lance son placement */
+function openShop() {
+  cancelEdit(true); enterDecorMode();
+  const z = M.decorZone, s = M.save, geo = computeGeo(s.size);
+  const free = [...geo.cells.values()].filter(c => c.zone === z && !c.block && !s.layout.some(e => e.key === c.key)).length;
+  const tiles = DECOR.filter(d => d.zone === z || d.zone === 'both').map(d => {
+    const owned = s.layout.filter(e => e.id === d.id).length, stock = s.inventory[d.id] || 0;
+    return `<button class="dtile" data-shop="${d.id}" type="button" ${!free || (!stock && s.money < d.price) ? 'disabled' : ''} title="${escapeHTML(d.name + ' · ' + fxText(d.fx))}">
+      ${owned ? `<span class="d-own">×${owned}</span>` : ''}<span class="d-ico">${d.icon}</span><b>${d.name}</b>
+      <small>${fxText(d.fx)}${d.seats ? ` · ${d.seats} pl.` : ''}</small><span class="d-price">${stock ? `📦 ${stock}` : fmtEUR(d.price)}</span></button>`;
+  }).join('');
+  $('#shop').innerHTML = `<div class="shop-head">${boardSegLike(z)}<span class="shop-free">${free} case${free > 1 ? 's' : ''} libre${free > 1 ? 's' : ''}</span><button class="dbtn" data-shop-close type="button" aria-label="Fermer le shop">✖</button></div>
+    ${fxSummary()}<div class="shop-grid" id="shop-grid">${tiles}</div>`;
+  $('#shop').hidden = false;
+  requestAnimationFrame(() => paginate($('#shop'), [...$$('#shop-grid .dtile')], 'shop-' + z, null));
+  Sound.play('tick');
+}
+const boardSegLike = z => `<div class="seg"><button class="${z === 'in' ? 'on' : ''}" data-shop-zone="in" type="button">🛋️ Intérieur</button><button class="${z === 'out' ? 'on' : ''}" data-shop-zone="out" type="button">⛱️ Terrasse</button></div>`;
+function closeShop() { const sh = $('#shop'); if (sh) sh.hidden = true; }
+function onShopClick(e) {
+  const t = e.target.closest('[data-shop], [data-shop-close], [data-shop-zone]');
+  if (!t || t.disabled) return;
+  if (t.hasAttribute('data-shop-close')) { closeShop(); Sound.play('tick'); return; }
+  if (t.dataset.shopZone) { setLobbyView(t.dataset.shopZone); openShop(); return; }
+  closeShop();
+  startPlace(t.dataset.shop);
 }
 /** Choisir un objet : un fantôme apparaît, on le déplace, on le tourne, puis on valide. */
 function startPlace(id, moving = null) {
@@ -5662,24 +5765,27 @@ function startPlace(id, moving = null) {
   const cells = [...computeGeo(M.save.size).cells.values()].filter(c => c.zone === zone);
   const cx = sum(cells, c => c.x) / cells.length, cz = sum(cells, c => c.z) / cells.length;
   const first = moving ? moving.key : (cells.filter(c => !placeCheck(c.key, id)).sort((a, b) => Math.hypot(a.x - cx, a.z - cz) - Math.hypot(b.x - cx, b.z - cz))[0] || cells[0]).key;
-  const hover = matchMedia('(hover: hover) and (pointer: fine)').matches;
-  M.edit = { mode: 'place', item: id, key: first, rot: moving ? moving.rot || 0 : 0, moving, locked: !!moving || !hover };
+  M.edit = { mode: 'place', item: id, key: first, rot: moving ? moving.rot || 0 : 0, moving, locked: !!moving || !HOVER() };
   World.setEdit('place');
   $('#item-pop').hidden = true;
   refreshPlace();
   Sound.play('tick');
 }
+/** Barre de placement : déplacer · tourner · placer (prix) · annuler — que des icônes. */
 function refreshPlace() {
   const ed = M.edit, d = DECOR_BY[ed.item];
   const why = placeCheck(ed.key, ed.item);
   World.setGhost(ed.item, ed.key, ed.rot, !why, ed.locked);
-  const free = ed.moving || (M.save.inventory[d.id] || 0) > 0;
-  const okLabel = ed.moving ? '✅ Poser ici' : free ? '✅ Placer (réserve)' : `✅ Placer · ${fmtEUR(d.price)}`;
-  const hint = why ? `<b style="color:#ff8a94">🚷 ${why}</b>` : `<b style="color:var(--green)">✔ Emplacement libre</b>`;
-  const hover = matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const how = !hover ? 'touche une case pour le déplacer' : ed.locked ? '🔒 verrouillé · clique dessus pour le redéplacer' : 'suit ta souris · clique pour le verrouiller';
-  showEditBar(`${d.icon} <b>${d.name}</b> — ${how}<br>${hint}`, true,
-    `<button class="buy ghost" data-act="rot" type="button" title="Tourner (R)">🔄 Tourner</button><button class="buy" data-act="ok" type="button" ${why || (!free && M.save.money < d.price) ? 'disabled' : ''}>${okLabel}</button>`);
+  const stock = (M.save.inventory[d.id] || 0) > 0, free = ed.moving || stock;
+  const price = ed.moving ? '' : stock ? '📦' : fmtEUR(d.price);
+  const cant = why || (!free && M.save.money < d.price);
+  $('#edit-bar').innerHTML = (why ? `<div class="dt-warn">🚷 ${why}</div>` : '')
+    + `<button class="dbtn${!ed.locked ? ' on' : ''}" data-act="move" type="button" aria-label="Déplacer" title="${HOVER() ? 'Déplacer : l\'objet suit la souris, clique pour le poser' : 'Déplacer : touche une case'}">✥</button>`
+    + `<button class="dbtn" data-act="rot" type="button" aria-label="Tourner" title="Tourner (R)">🔄</button>`
+    + `<button class="dbtn ok" data-act="ok" type="button" aria-label="Placer" title="Placer (Entrée)" ${cant ? 'disabled' : ''}>✅${price ? `<span class="d-price">${price}</span>` : ''}</button>`
+    + `<button class="dbtn no" data-act="cancel" type="button" aria-label="Annuler" title="Annuler (Échap)">✖</button>`;
+  $('#edit-bar').hidden = false;
+  $('#lobby-3d').classList.add('editing');
 }
 function confirmPlace() {
   const ed = M.edit, s = M.save;
@@ -5694,10 +5800,10 @@ function confirmPlace() {
   World.refreshItems(s);
   Sound.play('pop');
   FX.burst(window.innerWidth / 2, window.innerHeight * 0.3, { count: 24, kind: 'spark', power: 0.7 });
-  toast(d.icon, ed.moving ? `${d.name} déplacé !` : `${d.name} installé !`, fxText(d.fx), 'ok');
   ed.moving = null;
   enterDecorMode();
   renderLobby();
+  updateDecoMoney();
 }
 function rotatePlace() { if (M.edit && M.edit.mode === 'place') { M.edit.rot = (M.edit.rot + 1) % 4; refreshPlace(); Sound.play('tick'); } }
 /** Annuler un placement : un objet en cours de déplacement retrouve sa place. */
@@ -5732,26 +5838,43 @@ function onCellTap(key) {
   if (!entry) { $('#item-pop').hidden = true; World.highlight(null); ed.sel = null; return; }
   ed.sel = key;
   World.highlight(key);
+  closeShop();
   const d = DECOR_BY[entry.id];
-  $('#item-pop').innerHTML = `<b>${d.icon} ${d.name}</b><button class="buy" data-pop="move" type="button">↔️ Déplacer</button><button class="buy ghost" data-pop="rot" type="button">🔄 Tourner</button><button class="buy ghost" data-pop="store" type="button">📦 Ranger</button><button class="buy ghost" data-pop="sell" type="button">💶 Revendre ${fmtEUR(Math.round(d.price / 2))}</button>`;
+  $('#item-pop').innerHTML = `<div class="dt-name">${d.icon} ${d.name}</div>`
+    + `<button class="dbtn" data-pop="move" type="button" aria-label="Déplacer" title="Déplacer">✥</button>`
+    + `<button class="dbtn" data-pop="rot" type="button" aria-label="Tourner" title="Tourner">🔄</button>`
+    + `<button class="dbtn" data-pop="store" type="button" aria-label="Ranger en réserve" title="Ranger en réserve (replaçable gratuitement)">📦</button>`
+    + `<button class="dbtn sell" data-pop="sell" type="button" aria-label="Revendre" title="Revendre (−50 %)">💶<span class="d-price">+${fmtEUR(sellPrice(d))}</span></button>`
+    + `<button class="dbtn no" data-pop="close" type="button" aria-label="Fermer" title="Fermer">✖</button>`;
   $('#item-pop').hidden = false;
   Sound.play('tick');
 }
 function onCellHover(key) { if (M.edit && M.edit.mode === 'place' && !M.edit.locked && M.edit.key !== key) { M.edit.key = key; refreshPlace(); } }
+const sellPrice = d => Math.round(d.price / 2);   // revente à −50 % du prix d'achat
 function itemPopAction(a) {
+  if (a === 'close') { enterDecorMode(); Sound.play('tick'); return; }
   const s = M.save, key = M.edit && M.edit.sel;
   const i = s.layout.findIndex(e => e.key === key);
   if (i < 0) return;
   const e = s.layout[i], d = DECOR_BY[e.id];
   if (a === 'move') { s.layout.splice(i, 1); World.refreshItems(s); startPlace(e.id, e); return; }
   if (a === 'rot') e.rot = ((e.rot || 0) + 1) % 4;
-  else if (a === 'store') { s.layout.splice(i, 1); s.inventory[e.id] = (s.inventory[e.id] || 0) + 1; toast('📦', `${d.name} rangé en réserve`, 'Tu peux le replacer gratuitement.', 'info'); }
-  else if (a === 'sell') { s.layout.splice(i, 1); s.money += Math.round(d.price / 2); toast('💶', `${d.name} revendu`, `+${fmtEUR(Math.round(d.price / 2))}`, 'ok'); }
+  else if (a === 'store') { s.layout.splice(i, 1); s.inventory[e.id] = (s.inventory[e.id] || 0) + 1; decoHint(`📦 ${d.name} rangé : il est gratuit dans le shop`); }
+  else if (a === 'sell') {
+    confirmBox(`Tu veux revendre ${d.name} ?`, `Tu récupères ${fmtEUR(sellPrice(d))} (la moitié de son prix d'achat, ${fmtEUR(d.price)}).`, `Revendre · +${fmtEUR(sellPrice(d))}`, () => {
+      const j = s.layout.indexOf(e); if (j < 0) return;
+      s.layout.splice(j, 1); s.money += sellPrice(d);
+      persist(); World.refreshItems(s); enterDecorMode(); renderLobby(); updateDecoMoney();
+      Sound.play('bonus'); decoHint(`💶 ${d.name} revendu : +${fmtEUR(sellPrice(d))}`);
+    });
+    return;
+  }
   persist();
   World.refreshItems(s);
   if (a === 'rot') World.highlight(key); else enterDecorMode();
   Sound.play('pop');
   renderLobby();
+  updateDecoMoney();
 }
 
 /* =========================================================
@@ -6246,7 +6369,7 @@ function bindMeta() {
   $('#ob-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#ob-city').focus(); });
   $('#ob-go').addEventListener('click', finishOnboard);
   $('#ob-back').addEventListener('click', () => { renderTitle(); showScreen('title'); });
-  $$('.lp-tab').forEach(t => t.addEventListener('click', () => { cancelEdit(true); if (M.tab !== t.dataset.tab) PAGES['lobby-' + t.dataset.tab] = 0; M.tab = t.dataset.tab; Sound.play('tick'); renderLobby(); if (M.tab === 'decor') { setLobbyView(World.view); enterDecorMode(); } }));
+  $$('.lp-tab').forEach(t => t.addEventListener('click', () => { cancelEdit(true); if (M.tab !== t.dataset.tab) PAGES['lobby-' + t.dataset.tab] = 0; M.tab = t.dataset.tab; Sound.play('tick'); renderLobby(); if (M.tab === 'decor') enterDeco(); }));
   $('#lp-body').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) lobbyAction(b.dataset.act, b.dataset.id); });
   $('#view-toggle').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
@@ -6259,11 +6382,21 @@ function bindMeta() {
     if (!b || b.disabled) return;
     if (b.dataset.act === 'ok') confirmPlace();
     else if (b.dataset.act === 'rot') rotatePlace();
+    else if (b.dataset.act === 'move') {   // souris : l'objet suit le curseur ; tactile : on touche la case voulue
+      if (HOVER()) M.edit.locked = false; else decoHint('👆 Touche une case pour y déplacer l\'objet', 2200);
+      refreshPlace(); Sound.play('tick');
+    }
     else if (b.dataset.act === 'cancel') { abortPlace(); if (M.tab === 'decor') enterDecorMode(); else cancelEdit(); renderPanel(); }
   });
+  $('#btn-shop').addEventListener('click', () => { if ($('#shop').hidden) openShop(); else { closeShop(); Sound.play('tick'); } });
+  $('#btn-deco-exit').addEventListener('click', leaveDeco);
+  $('#shop').addEventListener('click', onShopClick);
   // Clavier dans le lobby : R tourner, Entrée valider, Échap annuler
   document.addEventListener('keydown', e => {
-    if (currentScreen === 'lobby' && e.key === 'Escape' && !(M.edit && M.edit.mode === 'place') && $('#screen-lobby').classList.contains('full3d')) { toggleFull3D(false); return; }
+    if (currentScreen === 'lobby' && e.key === 'Escape' && !(M.edit && M.edit.mode === 'place') && $('#screen-lobby').classList.contains('full3d')) {
+      if (!$('#shop').hidden) closeShop(); else if ($('#screen-lobby').classList.contains('deco')) leaveDeco(); else toggleFull3D(false);
+      return;
+    }
     if (currentScreen !== 'lobby' || !M.edit || M.edit.mode !== 'place' || (e.target.matches && e.target.matches('input'))) return;
     const k = e.key.toLowerCase();
     if (k === 'r') rotatePlace();
@@ -6330,7 +6463,7 @@ window.MyBeers = {
   view: setView, unlockFood() { if (!S.foodUnlocked) unlockFood(); },
   transmitAll, take(i = 0) { takeTray(K.trays[i]); }, deliver(c) { return deliverTray(c); },
   get meta() { return M; }, endNight(reason = 'closing') { endGame(reason); }, calm: calmAnimator,
-  place(id, key) { startPlace(id); onCellTap(key); }, geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v), fit: () => fitScreens(),
+  place(id, key) { startPlace(id); onCellTap(key); }, tapCell: k => onCellTap(k), geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v), fit: () => fitScreens(),
 };
 })();
 </script>
