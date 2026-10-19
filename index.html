@@ -1294,6 +1294,22 @@ b,strong{font-weight:700}
 #screen-lobby.full3d .lobby-3d{position:fixed;inset:0;z-index:40;border-radius:0;border:0;margin:0}
 #screen-lobby.full3d .l3d-hint{display:none}
 
+/* Tutoriel */
+.tuto-box{max-width:460px}
+.tuto-step{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-height:170px}
+.tuto-ico{font-size:2.6rem;line-height:1.1}
+.tuto-ico .ico-beer{width:2.8rem;height:2.8rem}
+.tuto-step h3{margin:0;font-family:var(--font-display);font-weight:400;color:var(--ink);font-size:1.2rem}
+.tuto-step p{margin:0;color:var(--ink-2);line-height:1.5;font-size:.95rem}
+.tuto-step b{color:var(--ink)}
+.tuto-dots{display:flex;justify-content:center;gap:7px}
+.tuto-dots i{width:9px;height:9px;border-radius:50%;background:var(--paper-3,#e2c49b)}
+.tuto-dots i.on{background:var(--c-orange,#f7a21b);transform:scale(1.25)}
+.tuto-actions{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tuto-actions .btn-primary{flex:1}
+#ov-tuto{z-index:60}
+.k-list > .k-card{min-height:46px !important}
+
 /* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
 .screen.scroll{overflow:hidden !important}
 .lp-body{overflow:hidden !important}
@@ -1337,7 +1353,12 @@ b,strong{font-weight:700}
   .taps{min-height:0}
   .tap{padding:8px 1px 3px}
   .tap .tap-glass{width:28px;height:28px}
-  .k-panels{height:100%;min-height:0;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+  #view-kitchen{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+  .k-panels{height:100%;min-height:0;grid-template-columns:1fr 1fr !important;grid-template-rows:minmax(0,1fr) !important;gap:6px}
+  .k-panel{padding:7px !important;gap:5px;max-height:none !important}
+  .k-panel h3{flex-direction:column;align-items:stretch;gap:4px;font-size:.78rem}
+  .k-panel h3 .k-btn{width:100%;justify-content:center;padding:6px 8px;font-size:.7rem}
+  .k-btn .kbd{display:none}
   .toasts.in-game{left:auto;right:10px;width:min(320px,45vw)}
 
   /* --- lobby : vue 3D à gauche, panneau à droite --- */
@@ -1616,8 +1637,6 @@ b,strong{font-weight:700}
         <div class="panel glass-view" id="glass-view">
           <div id="pour-glass" style="height:100%;display:flex"></div>
           <div class="pour-gauge" id="pour-gauge"><div class="z-ok"></div><div class="z-perfect"></div><i></i></div>
-          <div class="pour-result" id="pour-result"></div>
-          <div class="pour-hint" id="pour-hint">Maintiens une tireuse,<br>relâche au trait</div>
         </div>
         <div class="panel tap-panel">
           <div class="sizes" role="radiogroup" aria-label="Taille du verre">
@@ -1673,6 +1692,7 @@ b,strong{font-weight:700}
     <p class="pause-tip">Les clients patientent sagement… pour l'instant.</p>
     <button class="btn-primary" id="btn-resume" type="button">▶ REPRENDRE</button>
     <button class="btn-secondary btn-sound" type="button" aria-label="Réglages du son">🔊 Son</button>
+    <button class="btn-secondary" id="btn-tuto" type="button">📖 Revoir le tutoriel</button>
     <button class="btn-secondary" id="btn-close-night" type="button">🚪 Fermer le bar plus tôt</button>
     <p class="pause-tip"><b>Bar</b> : 1-4 maintenir pour tirer · 5 cocktail · A/Z taille du verre · ←/→ client · E bonus<br><b>Cuisine</b> : Entrée transmettre les bons · 1-3 prendre un plateau<br>Espace bar ⇄ cuisine · P pause · M son</p>
   </div>
@@ -1717,6 +1737,15 @@ b,strong{font-weight:700}
     <p class="pause-tip" id="confirm-text"></p>
     <button class="btn-primary" id="confirm-yes" type="button">Oui</button>
     <button class="btn-secondary" id="confirm-no" type="button">Annuler</button>
+  </div>
+</div>
+
+<div class="overlay modal" id="ov-tuto" role="dialog" aria-modal="true" aria-labelledby="tuto-title">
+  <div class="modal-box tuto-box">
+    <h2 id="tuto-title">📖 COMMENT ÇA MARCHE</h2>
+    <div class="tuto-step" id="tuto-step"></div>
+    <div class="tuto-dots" id="tuto-dots"></div>
+    <div class="tuto-actions"><button class="btn-link" id="tuto-skip" type="button">Passer</button><button class="btn-primary" id="tuto-next" type="button">Suivant ▶</button></div>
   </div>
 </div>
 
@@ -2627,7 +2656,7 @@ function buildPourGlass() {
     </g>
     <path d="${path}" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.88)" stroke-width="3" stroke-linejoin="round"/>
     <line x1="${xl(ty) + 2}" y1="${ty}" x2="${xr(ty) - 2}" y2="${ty}" stroke="#fff" stroke-width="2.4" stroke-dasharray="5 3"/>
-    <text x="${xr(ty) + 2}" y="${ty + 4}" fill="#fff" font-size="11" font-weight="900" font-family="system-ui,sans-serif">${size}</text>
+
     <path d="M${g.tl + 7} ${g.top + 8} L${g.bl + 6} ${g.bottom - 10}" stroke="rgba(255,255,255,.3)" stroke-width="5" stroke-linecap="round"/>
   </svg>`;
   pourEls = { liquid: $('#pour-liquid'), foam: $('#pour-foam'), stream: $('#pour-stream'), drips: $('#pour-drips'), marker: $('#pour-gauge i') };
@@ -2673,7 +2702,7 @@ function startPour(drinkId) {
   tap.classList.add('pouring');
   $('#glass-view').classList.add('pouring');
   $('#glass-view').classList.remove('has-result');
-  $('#pour-result').classList.remove('show');
+  
   Sound.pourStart();
   renderPour();
 }
@@ -2695,21 +2724,19 @@ function updatePour(dt) {
     P.cooldown -= dt;
     if (P.cooldown <= 0) {
       P.level = 0; renderPour();
-      $('#pour-result').classList.remove('show');
+      
       $('#glass-view').classList.remove('has-result');
     }
   }
 }
+/** Résultat du tirage : affiché au-dessus du bar (le cadre du verre reste sans texte). */
 function showPourResult(text, cls) {
-  const r = $('#pour-result');
-  r.className = 'pour-result'; void r.offsetWidth;
-  r.textContent = text;
-  r.className = 'pour-result show ' + cls;
+  floaterAt(sceneEl, text, cls === 'bad' ? 'bad' : 'good');
   $('#glass-view').classList.add('has-result');
 }
 function evaluatePour() {
   const lv = P.level;
-  if (lv < POUR.minLevel) { P.level = 0; renderPour(); floaterAt($('#glass-view'), 'Maintiens appuyé !', 'small'); return; }
+  if (lv < POUR.minLevel) { P.level = 0; renderPour(); floaterAt(sceneEl, 'Maintiens appuyé !', 'small'); return; }
   const rate = pourRate(P.size);
   const diff = lv - POUR.target;
   let q;
@@ -2736,7 +2763,7 @@ function deliverGlass(g) {
     S.st.failedPours++; S.st.perfectStreak = 0;
     S.combo = 0;
     addScore(-20);
-    floaterAt(view, '-20 · verre jeté', 'bad small');
+    floaterAt(sceneEl, '-20 · verre jeté', 'bad small');
     if (g.quality === 'over') FX.burstAt(view, { count: 16, kind: 'foam', power: 0.6 });
     shout(g.quality === 'over' ? 'TROP DE MOUSSE !' : 'IL EN MANQUE !', 'bad', 1);
     updateHUD();
@@ -2744,7 +2771,7 @@ function deliverGlass(g) {
   }
   const c = getSelected();
   showPourResult(g.quality === 'perfect' ? 'PARFAIT !' : g.drink === 'cocktail' ? 'COCKTAIL !' : 'BIEN !', g.quality === 'perfect' ? 'perfect' : 'ok');
-  if (!c) { floaterAt(view, 'Personne à servir…', 'bad small'); Sound.play('error'); addScore(-10); updateHUD(); return; }
+  if (!c) { floaterAt(sceneEl, 'Personne à servir…', 'bad small'); Sound.play('error'); addScore(-10); updateHUD(); return; }
   const item = c.drinks.find(it => !it.done && it.drink === g.drink && (it.size === g.size || g.drink === 'cocktail'));
   if (!item) {
     // Mauvaise boisson ou mauvaise taille
@@ -3606,7 +3633,7 @@ function startGame() {
   $$('.tab').forEach(t => { const on = t.dataset.view === 'bar'; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
   $$('.tap').forEach(t => t.classList.remove('pouring'));
   $('#glass-view').classList.remove('pouring', 'has-result');
-  $('#pour-result').classList.remove('show');
+  
   buildPourGlass();
   S.missions = [assignMission(), assignMission(), assignMission()];
   $('#missions').innerHTML = '';
@@ -3688,6 +3715,9 @@ function updateFsButtons() {
 function bindUI() {
   $('#btn-close-night').addEventListener('click', closeEarly);
   $('#btn-pause').addEventListener('click', pauseGame);
+  $('#tuto-next').addEventListener('click', () => { Sound.play('tick'); if (tutoI < TUTO.length - 1) { tutoI++; renderTuto(); } else closeTuto(); });
+  $('#tuto-skip').addEventListener('click', () => { Sound.play('tick'); closeTuto(); });
+  $('#btn-tuto').addEventListener('click', () => { Sound.play('tick'); openTuto(null); });
   $('#btn-resume').addEventListener('click', resumeGame);
   $$('.btn-sound').forEach(b => b.addEventListener('click', openAudio));
   document.addEventListener('pointerdown', () => { if (!Sound.muted) Sound.init(); }, { once: true, capture: true });
@@ -3800,7 +3830,8 @@ const TIP_PER_POINTS = 400;      // le score devient des pourboires : 1 € tous
 const TIP_CAP = 0.2;             // …plafonnés à 20 % des ventes de la soirée
 const NIGHT = { seconds: 210, openHour: 18, closeHour: 26 }; // une soirée = 3 min 30 de jeu, de 18:00 à 02:00
 const START_MONEY = 1500;
-const MONTH_NIGHTS = 20;         // un « mois » de salaire = 20 soirées travaillées ; le 1er mois est payé à l'embauche
+const MONTH_NIGHTS = 20;         // un « mois » de salaire = 20 soirées travaillées
+const HIRE_NIGHTS = 5;           // à l'embauche, on paie la 1re semaine (5 soirées) d'avance
 const FIXED_COSTS = [80, 160, 290, 480, 720];   // loyer, énergie, assurances… par soirée, selon la taille du bar
 const MAX_YEARS = [1, 3, 5, 8, 10];             // expérience maximale des candidats selon la taille du bar
 const ANIM_EVERY = 3;            // Mahfoud passe tous les 3 jours en mode gestion
@@ -4020,7 +4051,8 @@ const Account = {
 function gradeOf(m) { let g = 0; GRADES.forEach((G, i) => { if (m.nights >= G.nights) g = i; }); return g; }
 const staffBaseCA = m => ROLES[m.role].base * GRADES[gradeOf(m)].mult * m.eff;
 const staffExpected = m => staffBaseCA(m) * sizeDef().traffic * (1 + 0.05 * M.save.upgrades.com) * (1 + decorFx(M.save).traffic / 100);
-const staffSalary = m => Math.round(45 + 0.24 * staffBaseCA(m));            // coût par soirée
+const staffSalary = m => Math.round(35 + 0.22 * staffBaseCA(m));            // coût par soirée
+const staffHireCost = m => staffSalary(m) * HIRE_NIGHTS;                   // payé à l'embauche (1re semaine)
 const staffMonthly = m => staffSalary(m) * MONTH_NIGHTS;                  // salaire affiché (par mois)
 const starsOf = m => clamp(Math.round((m.eff - 0.72) / 0.14) + 1, 1, 5);
 const starsHTML = m => '★'.repeat(starsOf(m)) + '<span style="opacity:.25">' + '★'.repeat(5 - starsOf(m)) + '</span>';
@@ -5372,7 +5404,7 @@ function renderPanelBody() {
         <b>${escapeHTML(m.name)}<span class="grade g${g}">${GRADES[g].name}</span></b>
         <small>${ROLES[m.role].name} · <span class="stars">${starsHTML(m)}</span> · ${m.nights} soirée${m.nights > 1 ? 's' : ''}</small>
         <small class="u-effect">≈ ${fmtEUR(Math.round(staffExpected(m)))} de CA / soirée · ${fmtEUR(staffMonthly(m))} / mois</small>
-        ${m.prepaid > 0 ? `<small>✅ 1er mois payé : encore ${m.prepaid} soirée${m.prepaid > 1 ? 's' : ''}</small>` : ''}
+        ${m.prepaid > 0 ? `<small>✅ 1re semaine payée : encore ${m.prepaid} soirée${m.prepaid > 1 ? 's' : ''}</small>` : ''}
         <div class="xpbar"><i style="width:${prog * 100}%"></i></div></div>
         <button class="buy ghost" data-act="fire" data-id="${m.id}" type="button">Se séparer</button></div>`;
     }).join('') : `<p class="lp-empty">Personne pour l'instant : recrute ton premier équipier ! Il fera du chiffre de son côté chaque soir.</p>`;
@@ -5381,10 +5413,10 @@ function renderPanelBody() {
         <b>${escapeHTML(m.name)}<span class="grade g${gradeOf(m)}">${GRADES[gradeOf(m)].name}</span></b>
         <small>${ROLES[m.role].name} · ${m.years ? m.years + ' an' + (m.years > 1 ? 's' : '') + ' d\'expérience' : 'premier job'} · <span class="stars">${starsHTML(m)}</span></small>
         <small class="u-effect">≈ ${fmtEUR(Math.round(staffExpected(m)))} de CA / soirée · salaire ${fmtEUR(staffMonthly(m))} / mois</small></div>
-        <button class="buy" data-act="hire" data-id="${m.id}" type="button" ${full || s.money < staffMonthly(m) ? 'disabled' : ''}>Recruter<br><small>1er mois</small> ${fmtEUR(staffMonthly(m))}</button></div>`).join('')
+        <button class="buy" data-act="hire" data-id="${m.id}" type="button" ${full || s.money < staffHireCost(m) ? 'disabled' : ''}>Recruter<br><small>1re semaine</small> ${fmtEUR(staffHireCost(m))}</button></div>`).join('')
       : `<p class="lp-empty">Plus de candidats aujourd'hui. Reviens demain !</p>`;
     if (full) html += `<p class="lp-note">🏗️ Ton équipe est complète : agrandis ton bar pour recruter plus.</p>`;
-    body.innerHTML = html + `<p class="lp-note">💡 À l'embauche, tu payes le premier mois de salaire (${MONTH_NIGHTS} soirées). Ensuite, le salaire est prélevé chaque soir.<br>Plus un équipier reste, plus il monte en grade et rapporte. Les profils expérimentés arrivent quand ton bar grandit.</p></div>`;
+    body.innerHTML = html + `<p class="lp-note">💡 À l'embauche, tu payes la première semaine de salaire (${HIRE_NIGHTS} soirées). Ensuite, le salaire est prélevé chaque soir.<br>Plus un équipier reste, plus il monte en grade et rapporte. Les profils expérimentés arrivent quand ton bar grandit.</p></div>`;
   } else {
     const avgNet = s.history.length ? sum(s.history, h => h.net) / s.history.length : 0;
     const last7 = s.history.slice(-7), maxCA = Math.max(1, ...last7.map(h => h.ca));
@@ -5444,9 +5476,9 @@ function lobbyAction(act, id) {
     const i = s.candidates.findIndex(c => c.id === id);
     if (i < 0) return;
     if (s.staff.length >= staffMax()) { toast('🏗️', 'Équipe complète', 'Agrandis ton bar pour recruter plus.', 'bad'); return; }
-    if (!spend(staffMonthly(s.candidates[i]))) return;
+    if (!spend(staffHireCost(s.candidates[i]))) return;
     const m = s.candidates.splice(i, 1)[0];
-    m.hiredDay = s.day; m.prepaid = MONTH_NIGHTS;
+    m.hiredDay = s.day; m.prepaid = HIRE_NIGHTS;
     s.staff.push(m);
     persist();
     Sound.play('happy');
@@ -5619,8 +5651,32 @@ function beginNight() {
   World.hide();
   NIGHT_CTX.mode = 'bar'; NIGHT_CTX.brand = M.save.city.toUpperCase();
   applyNightModifiers();
-  startGame();
+  withTutorial(startGame);
 }
+/* ---------- Tutoriel : affiché avant la toute première soirée (et depuis la pause) ---------- */
+const TUTO = [
+  { ico: '🙋', t: 'Les clients arrivent au comptoir', d: 'Leur commande s\'affiche dans leur bulle et dans le cadre <b>Commande</b>. Touche un client pour le servir en premier (ou <b>← / →</b> au clavier).' },
+  { ico: BEER, t: 'Tire la bonne bière', d: 'Choisis le verre (<b>25 ou 50 cl</b>), puis <b>maintiens</b> la tireuse de la bière demandée. <b>Relâche quand le niveau atteint le trait</b> : dans la zone verte, c\'est PARFAIT. Le verre part au client sélectionné.' },
+  { ico: '🍔', t: 'La cuisine', d: 'Quand quelqu\'un commande à manger, va dans l\'onglet <b>Cuisine</b> : <b>transmets les bons</b> à Marco, récupère les <b>plateaux au passe</b> (2 en main maximum), puis reviens au bar et <b>touche le client</b> pour le servir.' },
+  { ico: '❤️', t: 'Ne fais pas trop attendre', d: 'Un client qui perd patience s\'en va et tu perds une <b>vie</b>. Enchaîne les services pour faire des <b>combos</b> : plus ton score est haut, plus les pourboires sont gros.' },
+  { ico: '🌙', t: 'De 18 h à 2 h', d: 'À la fermeture, tes ventes deviennent le <b>chiffre d\'affaires</b> de ta soirée. Tu le réinvestis ensuite dans ton bar. Bon service !' },
+];
+let tutoI = 0, tutoDone = null;
+function renderTuto() {
+  const st = TUTO[tutoI];
+  $('#tuto-step').innerHTML = `<div class="tuto-ico">${st.ico}</div><h3>${st.t}</h3><p>${st.d}</p>`;
+  $('#tuto-dots').innerHTML = TUTO.map((_, i) => `<i class="${i === tutoI ? 'on' : ''}"></i>`).join('');
+  $('#tuto-next').textContent = tutoI === TUTO.length - 1 ? "C'EST PARTI !" : 'Suivant ▶';
+  $('#tuto-skip').hidden = tutoI === TUTO.length - 1;
+}
+function openTuto(done) { tutoI = 0; tutoDone = done || null; renderTuto(); $('#ov-tuto').classList.add('show'); }
+function closeTuto() {
+  Store.set('tutoSeen', true);
+  $('#ov-tuto').classList.remove('show');
+  const f = tutoDone; tutoDone = null; if (f) f();
+}
+/** Lance `start` après le tutoriel si le joueur ne l'a jamais vu sur cet appareil. */
+function withTutorial(start) { if (Store.get('tutoSeen', false)) start(); else openTuto(start); }
 function applyNightModifiers() {
   const u = M.save.upgrades, fx = decorFx(M.save);
   NIGHT_MOD.spawn = sizeDef().traffic * (1 + 0.08 * u.com) * (1 + fx.traffic / 100);
@@ -6012,7 +6068,7 @@ function startArcade() {
   NIGHT_CTX.mode = 'arcade'; NIGHT_CTX.brand = 'MODE ARCADE';
   M.night.mood = null;
   applyArcadeModifiers();
-  startGame();
+  withTutorial(startGame);
 }
 function showArcadeResult(reason) {
   hideTransientOverlays();
