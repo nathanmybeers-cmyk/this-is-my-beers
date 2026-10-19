@@ -1335,6 +1335,33 @@ b,strong{font-weight:700}
 .board-seg{margin-bottom:6px}
 #ov-board .rank-list{margin:0}
 
+/* Soirée : pastilles d'onglet lisibles, jauge + Mahfoud sur une seule ligne */
+.tab .tab-badge{-webkit-text-stroke:0 !important;text-shadow:none !important;font-family:var(--font) !important;font-weight:800}
+.stat.up{animation:statUp .9s ease}
+@keyframes statUp{30%{transform:scale(1.18);box-shadow:0 0 0 4px #ffd54a,0 4px 0 var(--brick-d)}}
+.status{flex-wrap:wrap}
+.status .tabs{flex:1 1 100%}
+.status .gauge{flex:1 1 0;min-width:44%}
+.gauge-track{min-width:36px;flex:1}
+.status .anim-chip,.status .event-chip{flex:0 1 auto !important;min-width:0;overflow:hidden;white-space:nowrap}
+.status .event-chip,.status .anim-chip{max-width:23%}
+.status .anim-chip .e{display:none}
+.status .event-chip > div{min-width:0}
+.status .anim-chip .short{overflow:hidden;text-overflow:ellipsis}
+.status .anim-chip .long{display:none !important}
+.status .anim-chip .short{display:inline !important}
+.status .event-chip small{display:none}
+.status .event-chip b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+@media (max-width:600px){
+  .gl-txt{display:none}
+  .gauge{gap:6px}
+  .gauge-bonus{font-size:.66rem;padding:1px 5px}
+  #gauge-val{font-size:.9rem}
+  .status .event-chip b{font-size:.7rem}
+  .status .anim-chip{font-size:.75rem}
+  .status .anim-chip,.status .event-chip{padding:4px 8px}
+}
+
 /* Plus de scroll : les écrans s'ajustent (zoom) et les listes passent en pages */
 .screen.scroll{overflow:hidden !important}
 .lp-body{overflow:hidden !important}
@@ -1605,7 +1632,7 @@ b,strong{font-weight:700}
     </div>
     <div class="hud-stats">
       <div class="stat" id="stat-score"><span>Caisse</span><b id="hud-score">0 €</b></div>
-      <div class="stat"><span>Niveau</span><b id="hud-level">1</b></div>
+      <div class="stat" id="stat-level"><span>Niveau</span><b id="hud-level">1</b></div>
       <div class="stat stat-combo" id="stat-combo"><span>Combo</span><b id="hud-combo">x1</b></div>
       <div class="stat"><span>Heure</span><b id="hud-time">18:00</b></div>
       <div class="stat" id="stat-lives"><span>Vies</span><b id="hud-lives" class="lives"></b></div>
@@ -1623,7 +1650,7 @@ b,strong{font-weight:700}
       <button class="tab" id="tab-kitchen" data-view="kitchen" role="tab" aria-selected="false" type="button">🍔 CUISINE <span class="tab-badge" id="badge-kitchen"></span></button>
     </div>
     <div class="gauge" id="gauge">
-      <span class="gauge-label">🎶 Ambiance</span>
+      <span class="gauge-label">🎶<span class="gl-txt"> Ambiance</span></span>
       <div class="gauge-track"><div id="gauge-fill"></div></div>
       <b id="gauge-val">60%</b>
       <span class="gauge-bonus">🔥 x1,25</span>
@@ -1636,7 +1663,6 @@ b,strong{font-weight:700}
     <div class="anim-chip" id="anim-chip" hidden></div>
   </div>
 
-  <div class="missions" id="missions" aria-label="Missions"></div>
 
   <div class="views" id="views">
     <!-- ----- VUE BAR ----- -->
@@ -3216,9 +3242,8 @@ function checkLevel() {
     setAmbiance(S.ambiance + 10);
     $('#level-num').textContent = lvl;
     $('#level-desc').textContent = LEVEL_LINES[(lvl - 2) % LEVEL_LINES.length];
-    flashOverlay($('#ov-level'), 1700);
+    flash($('#stat-level'), 'up', 900);   // le niveau monte simplement en haut de l'écran
     Sound.play('levelup');
-    FX.burst(window.innerWidth / 2, window.innerHeight / 2, { count: 70, kind: 'confetti', power: 1.5 });
   }
 }
 
@@ -3349,6 +3374,7 @@ function checkMissions() {
   renderMissions();
 }
 function renderMissions() {
+  if (!$('#missions')) return;
   const box = $('#missions');
   const list = S.missions.filter(Boolean);
   if (box.children.length !== list.length || [...box.children].some((el, i) => el.dataset.id !== list[i].def.id)) {
@@ -3492,6 +3518,7 @@ function shout(text, kind = '', prio = 1) {
   shoutTimer = setTimeout(() => el.classList.remove('show'), 1300);
 }
 function toast(icon, title, sub = '', kind = '') {
+  if (currentScreen === 'game') return;   // pas de notification pendant la soirée
   const box = currentScreen === 'game' ? $('#game-toasts') : $('#toasts');
   const el = document.createElement('div');
   el.className = 'toast ' + kind;
@@ -3516,6 +3543,7 @@ function floaterAt(el, text, kind = '') {
 const overlayTimers = new Map();
 const BANNERS = ['#ov-event', '#ov-level', '#ov-clink'];
 function flashOverlay(el, ms) {
+  if (currentScreen === 'game') return;   // aucune fenêtre ne doit bloquer le jeu pendant la soirée
   for (const id of BANNERS) { const o = $(id); if (o !== el && o.classList.contains('show')) { clearTimeout(overlayTimers.get(o)); o.classList.remove('show'); } }
   clearTimeout(overlayTimers.get(el));
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
@@ -3722,8 +3750,7 @@ function startGame() {
   $('#glass-view').classList.remove('pouring', 'has-result');
   
   buildPourGlass();
-  S.missions = [assignMission(), assignMission(), assignMission()];
-  $('#missions').innerHTML = '';
+  S.missions = [];   // plus de quêtes pendant la soirée : la scène du bar garde toute la place
   renderMissions(); updateTaps(); updateHUD(); updateTabs();
   resetKitchenVisuals(); renderOrderPanel(); renderKitchen();
   setText('#hud-time', nightClock());
