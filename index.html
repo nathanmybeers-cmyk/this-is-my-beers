@@ -1607,7 +1607,7 @@ b,strong{font-weight:700}
   <div class="lobby-main">
     <div class="lobby-3d" id="lobby-3d">
       <div class="l3d-badge" id="l3d-badge"></div>
-      <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · deux doigts / clic droit pour te déplacer · molette ou pince pour zoomer</div>
+      <div class="l3d-hint" id="l3d-hint">👆 Glisse pour tourner · deux doigts / clic droit pour te déplacer · molette ou pince pour zoomer · ⤢ plein écran pour aménager</div>
       <div class="deco-top" id="deco-top">
         <div class="dt-left"><span class="chip money" id="deco-money">💶 0 €</span></div>
         <button class="dbtn" id="btn-deco-exit" type="button" aria-label="Quitter le mode déco" title="Quitter le mode déco">✖</button>
@@ -5388,7 +5388,7 @@ const World = (() => {
       const dx = e.clientX - p.x, dy = e.clientY - p.y;
       p.x = e.clientX; p.y = e.clientY;
       if (down) down.moved += Math.abs(dx) + Math.abs(dy);
-      if (ptrs.size === 1) { if (down && down.pan) pan(dx, dy); else { goal.az -= dx * 0.006; goal.pol -= dy * 0.004; } }
+      if (ptrs.size === 1) { if (rotLock || (down && down.pan)) pan(dx, dy); else { goal.az -= dx * 0.006; goal.pol -= dy * 0.004; } }
       else if (ptrs.size === 2) {
         const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
         if (pinch0) goal.dist *= pinch0 / d; pinch0 = d;
@@ -5417,6 +5417,8 @@ const World = (() => {
     });
     el.addEventListener('wheel', e => { e.preventDefault(); goal.dist *= 1 + Math.sign(e.deltaY) * 0.08; clampGoal(); cam.idle = 0; }, { passive: false });
   }
+  /** En mode déco / plein écran, la caméra ne tourne plus : glisser déplace la vue. */
+  let rotLock = false;
   /** Glisser la vue : le décor suit le doigt / la souris, dans les limites de la zone. */
   function pan(dx, dy) {
     if (!targetGoal || !renderer) return;
@@ -5468,7 +5470,7 @@ const World = (() => {
     if (!running) return;
     const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now; t += dt;
     cam.idle += dt;
-    if (cam.idle > 5 && !editMode && !reducedMotion) goal.az = clamp(goal.az + Math.sin(t * 0.12) * dt * 0.05, VIEWS[view].azR[0], VIEWS[view].azR[1]);
+    if (cam.idle > 5 && !editMode && !rotLock && !reducedMotion) goal.az = clamp(goal.az + Math.sin(t * 0.12) * dt * 0.05, VIEWS[view].azR[0], VIEWS[view].azR[1]);
     const k = Math.min(1, dt * 6);
     cam.az += (goal.az - cam.az) * k; cam.pol += (goal.pol - cam.pol) * k; cam.dist += (goal.dist - cam.dist) * k;
     target.lerp(targetGoal, k);
@@ -5489,6 +5491,7 @@ const World = (() => {
     set onTap(fn) { onCellTap = fn; },
     set onHover(fn) { onCellHover = fn; },
     setGhost(id, key, rot, valid, locked) { if (renderer && !failed) setGhost(id, key, rot, valid, locked); },
+    setRotate(on) { rotLock = !on; cam.idle = 0; },
     setPreview(on) { if (previewOn === !!on) return; previewOn = !!on; if (renderer && !failed && geo) applyCut(); },
     show(save) {
       sv = save;
@@ -5790,6 +5793,7 @@ function setLobbyView(v) {
 /** Vue 3D du bar en plein écran (housing) : un bouton pour entrer, le même (ou Échap) pour sortir. */
 function toggleFull3D(on = !$('#screen-lobby').classList.contains('full3d')) {
   $('#screen-lobby').classList.toggle('full3d', on);
+  World.setRotate(!on);   // la vue ne tourne que sur l'écran normal du lobby
   const b = $('#l3d-full');
   b.innerHTML = on ? ICO_SHRINK + '<span>Quitter</span>' : ICO_EXPAND;
   b.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Agrandir la vue');
