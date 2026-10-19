@@ -4675,6 +4675,13 @@ const World = (() => {
       const pz = TT + CELL;   // les poteaux sont une case devant la terrasse : rien ne peut les traverser
       for (let x = xL; x <= x1 + 0.01; x += W / Math.max(2, Math.round(W / 4))) ghost(cyl(0.09, 0.09, 3.2, wood, x, 0, pz, bldG));
       for (let z = 0.6; z < pz; z += 0.8) ghost(rbox(W, 0.1, 0.12, wood, cx, 3.2, z, bldG, 0.03));
+      // câbles tendus de la façade jusqu'aux poteaux : les lattes reposent dessus
+      const cableM = lam(0x111111), nP = Math.max(2, Math.round(W / 4));
+      for (let i = 0; i <= nP; i++) {
+        const x = xL + i * W / nP, c = cyl(0.025, 0.025, pz + 0.1, cableM, x, 3.14, pz / 2, bldG, 8);
+        c.rotation.x = Math.PI / 2; c.position.set(x, 3.14, pz / 2 - 0.05); ghost(c);
+        ghost(rbox(0.16, 0.16, 0.1, cableM, x, 3.06, 0.32, bldG, 0.02));   // patte de fixation sur la façade
+      }
       for (let i = 0; i <= 18; i++) { const k = i / 18; const b = sphere(0.07, basic({ color: i % 3 ? 0xffe08a : 0xffb04a }), lerp(xL, x1, k), 3.05 - Math.sin(k * Math.PI) * 0.3, pz * 0.5, bldG, 10); b.castShadow = false; blinkers.push(ghost(b)); }
     }
     // ---- intérieur ----
@@ -5356,17 +5363,25 @@ const World = (() => {
   }
 
   /* ---------- caméra & entrées ---------- */
-  function setGoalsFor(v) {
-    const V_ = VIEWS[v];
-    goal.az = V_.az; goal.pol = V_.pol; goal.dist = V_.dist * zoomK();
-    const tg = v === 'in' ? [geo.xL + geo.W / 2, 0.8, -geo.D / 2 + 0.5] : geo.roof ? [geo.xL + geo.W / 2, 3.5, 0] : [geo.xL + geo.W / 2, 1.5, 4.5];
-    targetGoal.set(...tg);
+  /** Boîte à cadrer : tout le bâtiment (extension cuisine, terrasse et pergola comprises) ou la salle en vue intérieure. */
+  function frameBox(v) {
+    if (v === 'in') return { x0: geo.xL, x1: geo.x1, z0: -geo.D, z1: 0, y0: 0, y1: 2.2 };
+    return { x0: geo.xL - 1, x1: geo.x1 + 2.5, z0: -geo.D - KITCHEN.d - 0.6, z1: geo.T + CELL + 0.5, y0: 0, y1: geo.H + (geo.roof ? 3.2 : 2.6) };
   }
-  /** Plus le bâtiment est grand, plus la caméra recule. */
-  const zoomK = () => geo ? clamp(Math.max(geo.W / 13, geo.D / 9), 1, 2.1) : 1;
+  /** Distance pour que la boîte tienne entièrement à l'écran (largeur et hauteur), quel que soit l'angle de rotation. */
+  function fitDist(v) {
+    const b = frameBox(v), fovV = camera.fov * Math.PI / 180, fovH = 2 * Math.atan(Math.tan(fovV / 2) * camera.aspect);
+    const r = Math.hypot(b.x1 - b.x0, b.z1 - b.z0, (b.y1 - b.y0) * 0.8) / 2;
+    return r / Math.sin(Math.min(fovV, fovH) / 2) * (v === 'in' ? 0.82 : 0.95) * (camera.aspect < 0.8 ? 1.12 : 1);   // écran très vertical : un peu plus de recul
+  }
+  function setGoalsFor(v) {
+    const V_ = VIEWS[v], b = frameBox(v);
+    goal.az = V_.az; goal.pol = V_.pol; goal.dist = fitDist(v);
+    targetGoal.set((b.x0 + b.x1) / 2, (b.y1 - b.y0) * (v === 'in' ? 0.3 : 0.32), (b.z0 + b.z1) / 2);
+  }
   function clampGoal() {
-    const V_ = VIEWS[view], k = zoomK();
-    goal.az = clamp(goal.az, V_.azR[0], V_.azR[1]); goal.pol = clamp(goal.pol, V_.polR[0], V_.polR[1]); goal.dist = clamp(goal.dist, V_.distR[0] * k, V_.distR[1] * k);
+    const V_ = VIEWS[view], f = fitDist(view);
+    goal.az = clamp(goal.az, V_.azR[0], V_.azR[1]); goal.pol = clamp(goal.pol, V_.polR[0], V_.polR[1]); goal.dist = clamp(goal.dist, f * 0.3, f * 1.5);
   }
   function bindControls() {
     const el = renderer.domElement;
@@ -5444,6 +5459,7 @@ const World = (() => {
     camera.aspect = r.width / r.height;
     camera.fov = camera.aspect < 1 ? 62 : 45;
     camera.updateProjectionMatrix();
+    if (geo && targetGoal && !rotLock) setGoalsFor(view);
   }
   function init() {
     wrap = $('#lobby-3d');
@@ -5492,9 +5508,25 @@ const World = (() => {
     set onHover(fn) { onCellHover = fn; },
     setGhost(id, key, rot, valid, locked) { if (renderer && !failed) setGhost(id, key, rot, valid, locked); },
     /** true = mode déco / plein écran (on déplace la vue, angle de base) ; false = vitrine animée sans interaction. */
+    /** Contrôle du cadrage : plus grande coordonnée écran des coins du bâtiment (≤ 1 = tout est visible). */
+    frameCheck() {
+      if (!camera || !geo) return null;
+      // caméra placée directement sur sa position d'arrivée
+      Object.assign(cam, { az: goal.az, pol: goal.pol, dist: goal.dist }); target.copy(targetGoal);
+      const sp = Math.sin(cam.pol);
+      camera.position.set(target.x + cam.dist * sp * Math.sin(cam.az), target.y + cam.dist * Math.cos(cam.pol), target.z + cam.dist * sp * Math.cos(cam.az));
+      camera.lookAt(target); camera.updateMatrixWorld();
+      const b = frameBox(view); let m = 0;
+      for (const x of [b.x0, b.x1]) for (const y of [b.y0, b.y1]) for (const z of [b.z0, b.z1]) { const v = new T.Vector3(x, y, z).project(camera); m = Math.max(m, Math.abs(v.x), Math.abs(v.y)); }
+      return +m.toFixed(2);
+    },
     setInteractive(on) {
       rotLock = !!on; cam.idle = 0; ptrs.clear(); down = null; pinch0 = 0;
-      if (renderer && !failed && geo) { setGoalsFor(view); clampGoal(); }
+      if (renderer && !failed && geo) {
+        setGoalsFor(view);
+        // la vue change de taille (plein écran) : on recadre une fois la nouvelle taille appliquée
+        requestAnimationFrame(() => requestAnimationFrame(() => { resize(); setGoalsFor(view); clampGoal(); }));
+      }
     },
     setPreview(on) { if (previewOn === !!on) return; previewOn = !!on; if (renderer && !failed && geo) applyCut(); },
     show(save) {
@@ -6586,7 +6618,7 @@ window.MyBeers = {
   view: setView, unlockFood() { if (!S.foodUnlocked) unlockFood(); },
   transmitAll, take(i = 0) { takeTray(K.trays[i]); }, deliver(c) { return deliverTray(c); },
   get meta() { return M; }, endNight(reason = 'closing') { endGame(reason); }, calm: calmAnimator,
-  place(id, key) { startPlace(id); onCellTap(key); }, tapCell: k => onCellTap(k), geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v), fit: () => fitScreens(),
+  place(id, key) { startPlace(id); onCellTap(key); }, tapCell: k => onCellTap(k), geo: () => computeGeo(M.save.size), lobbyView: v => setLobbyView(v), frame: () => World.frameCheck(), fit: () => fitScreens(),
 };
 })();
 </script>
